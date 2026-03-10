@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U&Me AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="mainApp" style="display:flex; flex-direction:column; height:100vh;">
+
+        <div class="header">
+            <div class="header-left">
+                <h1>U&Me AI</h1>
+                <p>Your Personal AI Assistant — Powered by LLaMA 3</p>
+            </div>
+            <div class="header-right">
+                <select id="languageSelect" class="lang-select" onchange="changeLanguage()">
+                    <option value="English">🌐 English</option>
+                    <option value="Hindi">🇮🇳 Hindi</option>
+                    <option value="Spanish">🇪🇸 Spanish</option>
+                    <option value="French">🇫🇷 French</option>
+                    <option value="Arabic">🇸🇦 Arabic</option>
+                    <option value="Chinese">🇨🇳 Chinese</option>
+                    <option value="Japanese">🇯🇵 Japanese</option>
+                </select>
+                <select id="personalitySelect" class="lang-select" onchange="changePersonality()">
+                    <option value="helpful">😊 Helpful</option>
+                    <option value="professional">💼 Professional</option>
+                    <option value="friendly">🤗 Friendly</option>
+                    <option value="funny">😄 Funny</option>
+                    <option value="teacher">👨‍🏫 Teacher</option>
+                </select>
+                <button onclick="showStats()" class="header-btn" title="Statistics">📊</button>
+                <button onclick="saveChat()" class="header-btn" title="Save Chat">💾</button>
+                <button onclick="clearChat()" class="header-btn" title="Clear Chat">🗑️</button>
+                <button onclick="toggleTheme()" class="header-btn" id="themeBtn" title="Toggle Theme">☀️</button>
+                <div class="developer">Developed by Niranjan Choudhary</div>
+            </div>
+        </div>
+
+        <!-- Stats Modal -->
+        <div class="modal" id="statsModal" style="display:none">
+            <div class="modal-content">
+                <h3>📊 Chat Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-number" id="statMessages">0</div>
+                        <div class="stat-label">Messages</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="statWords">0</div>
+                        <div class="stat-label">Words</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="statQuestions">0</div>
+                        <div class="stat-label">Questions</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="statLanguage">EN</div>
+                        <div class="stat-label">Language</div>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('statsModal').style.display='none'" style="width:100%;margin-top:15px;border-radius:10px;height:40px;">Close</button>
+            </div>
+        </div>
+
+        <!-- Camera Modal -->
+        <div class="modal" id="cameraModal" style="display:none">
+            <div class="modal-content">
+                <h3>📷 Take a Photo</h3>
+                <video id="cameraVideo" autoplay></video>
+                <canvas id="cameraCanvas" style="display:none"></canvas>
+                <div class="modal-buttons">
+                    <button onclick="capturePhoto()">Capture</button>
+                    <button onclick="closeCamera()" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="welcome" id="welcome">
+                <h2>Hello! I am U&Me AI</h2>
+                <p>I can help you with anything! Ask me anything you want.</p>
+                <div class="suggestions">
+                    <div class="suggestion" onclick="sendSuggestion('What can you do?')">What can you do?</div>
+                    <div class="suggestion" onclick="sendSuggestion('Is this news fake: Scientists discover cure for cancer')">Check fake news</div>
+                    <div class="suggestion" onclick="sendSuggestion('Write a Python hello world program')">Write code</div>
+                    <div class="suggestion" onclick="sendSuggestion('Translate Hello to Hindi')">Translate language</div>
+                    <div class="suggestion" onclick="sendSuggestion('What is the capital of India?')">Answer questions</div>
+                    <div class="suggestion" onclick="sendSuggestion('Solve: 25 x 48 + 100')">Solve math</div>
+                </div>
+            </div>
+            <div class="message ai-message typing" id="typing">
+                <div class="sender">U&Me AI</div>
+                <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="file-preview" id="filePreview" style="display:none">
+            <div class="file-preview-inner">
+                <span id="filePreviewName"></span>
+                <button onclick="clearFile()" class="clear-btn">x</button>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-buttons">
+                <button onclick="document.getElementById('fileInput').click()" class="icon-btn" title="Upload Document">📄</button>
+                <button onclick="document.getElementById('imageInput').click()" class="icon-btn" title="Upload Image">🖼️</button>
+                <button onclick="openCamera()" class="icon-btn" title="Take Photo">📷</button>
+                <button onclick="toggleVoiceInput()" class="icon-btn" id="voiceBtn" title="Voice Input">🎤</button>
+            </div>
+            <input type="file" id="fileInput" accept=".pdf,.docx,.txt" style="display:none" onchange="handleFileUpload(event)">
+            <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+            <textarea id="userInput" placeholder="Ask me anything..." rows="1" onkeydown="handleKey(event)"></textarea>
+            <button onclick="sendMessage()" id="sendBtn">➤</button>
+        </div>
+
+    </div>
+
+    <script>
+        var chatHistory = [];
+        var documentText = "";
+        var imageBase64 = "";
+        var isDark = true;
+        var currentLanguage = "English";
+        var currentPersonality = "helpful";
+        var totalMessages = 0;
+        var totalWords = 0;
+        var totalQuestions = 0;
+        var isListening = false;
+        var userSpokeWithMic = false;
+
+        function toggleTheme() {
+            isDark = !isDark;
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+        }
+
+        function changeLanguage() {
+            currentLanguage = document.getElementById('languageSelect').value;
+        }
+
+        function changePersonality() {
+            currentPersonality = document.getElementById('personalitySelect').value;
+        }
+
+        function showStats() {
+            document.getElementById('statMessages').textContent = totalMessages;
+            document.getElementById('statWords').textContent = totalWords;
+            document.getElementById('statQuestions').textContent = totalQuestions;
+            document.getElementById('statLanguage').textContent = currentLanguage.substring(0,2).toUpperCase();
+            document.getElementById('statsModal').style.display = 'flex';
+        }
+
+        function saveChat() {
+            var text = "U&Me AI Chat History\n====================\n\n";
+            chatHistory.forEach(function(msg) {
+                text += (msg.role === 'user' ? 'You: ' : 'U&Me AI: ') + msg.content + "\n\n";
+            });
+            var blob = new Blob([text], { type: 'text/plain' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'uandme-chat.txt';
+            a.click();
+        }
+
+        function clearChat() {
+            chatHistory = [];
+            documentText = "";
+            imageBase64 = "";
+            totalMessages = 0;
+            totalWords = 0;
+            totalQuestions = 0;
+            var container = document.getElementById('chatContainer');
+            var typing = document.getElementById('typing');
+            var welcome = document.getElementById('welcome');
+            while (container.firstChild) container.removeChild(container.firstChild);
+            container.appendChild(welcome);
+            container.appendChild(typing);
+            welcome.style.display = 'block';
+            document.getElementById('filePreview').style.display = 'none';
+        }
+
+        function toggleVoiceInput() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Voice input not supported! Use Chrome.');
+                return;
+            }
+            if (isListening) return;
+
+            var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            var recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = function() {
+                isListening = true;
+                document.getElementById('voiceBtn').textContent = '🔴';
+                document.getElementById('voiceBtn').style.background = 'rgba(233,69,96,0.3)';
+            };
+
+            recognition.onresult = function(event) {
+                var transcript = event.results[0][0].transcript;
+                document.getElementById('userInput').value = transcript;
+                isListening = false;
+                document.getElementById('voiceBtn').textContent = '🎤';
+                document.getElementById('voiceBtn').style.background = '';
+                userSpokeWithMic = true;
+                sendMessage();
+            };
+
+            recognition.onerror = function() {
+                isListening = false;
+                document.getElementById('voiceBtn').textContent = '🎤';
+                document.getElementById('voiceBtn').style.background = '';
+                userSpokeWithMic = false;
+            };
+
+            recognition.onend = function() {
+                isListening = false;
+                document.getElementById('voiceBtn').textContent = '🎤';
+                document.getElementById('voiceBtn').style.background = '';
+            };
+
+            recognition.start();
+        }
+
+        function speakText(text) {
+            try {
+                window.speechSynthesis.cancel();
+                setTimeout(function() {
+                    var utterance = new SpeechSynthesisUtterance(text);
+                    utterance.volume = 1;
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1;
+                    window.speechSynthesis.speak(utterance);
+                }, 300);
+            } catch(e) {
+                console.log("Speech error:", e);
+            }
+        }
+
+        function clearFile() {
+            documentText = "";
+            imageBase64 = "";
+            document.getElementById('filePreview').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('imageInput').value = '';
+        }
+
+        function showFilePreview(name) {
+            document.getElementById('filePreviewName').textContent = name;
+            document.getElementById('filePreview').style.display = 'block';
+        }
+
+        async function handleFileUpload(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            var formData = new FormData();
+            formData.append('file', file);
+            addMessage('Uploading document: ' + file.name, true);
+            try {
+                var response = await fetch('http://127.0.0.1:8000/upload', { method: 'POST', body: formData });
+                var data = await response.json();
+                if (data.status === 'success') {
+                    documentText = data.text;
+                    imageBase64 = "";
+                    showFilePreview(file.name);
+                    addMessageWithAnimation('Document uploaded! You can now ask questions about it.', false);
+                } else {
+                    addMessageWithAnimation('Error: ' + data.message, false);
+                }
+            } catch (error) {
+                addMessageWithAnimation('Error uploading document!', false);
+            }
+        }
+
+        async function handleImageUpload(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            var formData = new FormData();
+            formData.append('file', file);
+            addMessage('Uploading image: ' + file.name, true);
+            try {
+                var response = await fetch('http://127.0.0.1:8000/upload', { method: 'POST', body: formData });
+                var data = await response.json();
+                if (data.status === 'success') {
+                    imageBase64 = data.image_base64;
+                    documentText = "";
+                    showFilePreview(file.name);
+                    addMessageWithAnimation('Image uploaded! You can now ask questions about it.', false);
+                } else {
+                    addMessageWithAnimation('Error: ' + data.message, false);
+                }
+            } catch (error) {
+                addMessageWithAnimation('Error uploading image!', false);
+            }
+        }
+
+        async function openCamera() {
+            document.getElementById('cameraModal').style.display = 'flex';
+            try {
+                var stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('cameraVideo').srcObject = stream;
+            } catch (error) {
+                alert('Cannot access camera!');
+                closeCamera();
+            }
+        }
+
+        function closeCamera() {
+            var video = document.getElementById('cameraVideo');
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(function(track) { track.stop(); });
+            }
+            document.getElementById('cameraModal').style.display = 'none';
+        }
+
+        function capturePhoto() {
+            var video = document.getElementById('cameraVideo');
+            var canvas = document.getElementById('cameraCanvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            imageBase64 = canvas.toDataURL('image/jpeg').split(',')[1];
+            documentText = "";
+            closeCamera();
+            showFilePreview('Camera Photo');
+            addMessageWithAnimation('Photo taken! You can now ask questions about it.', false);
+        }
+
+        function addReaction(btn, emoji) {
+            btn.textContent = emoji;
+            btn.style.background = 'rgba(108,99,255,0.2)';
+        }
+
+        function handleKey(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function sendSuggestion(text) {
+            document.getElementById('userInput').value = text;
+            sendMessage();
+        }
+
+        function copyMessage(text, btn) {
+            navigator.clipboard.writeText(text).then(function() {
+                btn.textContent = '✅';
+                setTimeout(function() { btn.textContent = '📋'; }, 2000);
+            });
+        }
+
+        function addMessage(text, isUser) {
+            var welcome = document.getElementById('welcome');
+            if (welcome) welcome.style.display = 'none';
+            var container = document.getElementById('chatContainer');
+            var typing = document.getElementById('typing');
+            var div = document.createElement('div');
+            div.className = 'message ' + (isUser ? 'user-message' : 'ai-message');
+            if (!isUser) {
+                var header = document.createElement('div');
+                header.className = 'message-header';
+                var sender = document.createElement('div');
+                sender.className = 'sender';
+                sender.textContent = 'U&Me AI';
+                var actions = document.createElement('div');
+                actions.className = 'message-actions';
+                var copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.textContent = '📋';
+                copyBtn.onclick = function() { copyMessage(text, copyBtn); };
+                var reactions = ['👍','❤️','😂','😮','😢'];
+                reactions.forEach(function(emoji) {
+                    var btn = document.createElement('button');
+                    btn.className = 'reaction-btn';
+                    btn.textContent = emoji;
+                    btn.onclick = function() { addReaction(btn, emoji); };
+                    actions.appendChild(btn);
+                });
+                actions.appendChild(copyBtn);
+                header.appendChild(sender);
+                header.appendChild(actions);
+                div.appendChild(header);
+            }
+            var textNode = document.createElement('div');
+            textNode.className = 'message-text';
+            textNode.textContent = text;
+            div.appendChild(textNode);
+            container.insertBefore(div, typing);
+            container.scrollTop = container.scrollHeight;
+            totalMessages++;
+            totalWords += text.split(' ').length;
+            if (text.includes('?')) totalQuestions++;
+        }
+
+        function addMessageWithAnimation(text, spokeWithMic) {
+            var welcome = document.getElementById('welcome');
+            if (welcome) welcome.style.display = 'none';
+            var container = document.getElementById('chatContainer');
+            var typing = document.getElementById('typing');
+            var div = document.createElement('div');
+            div.className = 'message ai-message';
+            var header = document.createElement('div');
+            header.className = 'message-header';
+            var sender = document.createElement('div');
+            sender.className = 'sender';
+            sender.textContent = 'U&Me AI';
+            var actions = document.createElement('div');
+            actions.className = 'message-actions';
+            var copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = '📋';
+            copyBtn.onclick = function() { copyMessage(text, copyBtn); };
+            var reactions = ['👍','❤️','😂','😮','😢'];
+            reactions.forEach(function(emoji) {
+                var btn = document.createElement('button');
+                btn.className = 'reaction-btn';
+                btn.textContent = emoji;
+                btn.onclick = function() { addReaction(btn, emoji); };
+                actions.appendChild(btn);
+            });
+            actions.appendChild(copyBtn);
+            header.appendChild(sender);
+            header.appendChild(actions);
+            div.appendChild(header);
+            var textNode = document.createElement('div');
+            textNode.className = 'message-text';
+            div.appendChild(textNode);
+            container.insertBefore(div, typing);
+
+            
+            var i = 0;
+            function typeWriter() {
+                if (i < text.length) {
+                    textNode.textContent += text.charAt(i);
+                    i++;
+                    container.scrollTop = container.scrollHeight;
+                    setTimeout(typeWriter, 10);
+                }
+            }
+            typeWriter();
+            totalMessages++;
+            totalWords += text.split(' ').length;
+        }
+
+        async function sendMessage() {
+            var input = document.getElementById('userInput');
+            var text = input.value.trim();
+            if (!text && !imageBase64) return;
+
+            var spokeWithMic = userSpokeWithMic;
+            userSpokeWithMic = false;
+
+            input.value = '';
+            document.getElementById('sendBtn').disabled = true;
+            if (text) addMessage(text, true);
+
+            chatHistory.push({ role: 'user', content: text || 'What is in this image?' });
+            document.getElementById('typing').style.display = 'block';
+            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+
+            try {
+                var response = await fetch('http://127.0.0.1:8000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: text || 'What is in this image?',
+                        history: chatHistory.slice(-10),
+                        document_text: documentText,
+                        image_base64: imageBase64,
+                        language: currentLanguage,
+                        personality: currentPersonality
+                    })
+                });
+
+                var data = await response.json();
+                document.getElementById('typing').style.display = 'none';
+                addMessageWithAnimation(data.reply, spokeWithMic);
+                chatHistory.push({ role: 'assistant', content: data.reply });
+
+                if (imageBase64) {
+                    imageBase64 = "";
+                    document.getElementById('filePreview').style.display = 'none';
+                }
+
+            } catch (error) {
+                document.getElementById('typing').style.display = 'none';
+                addMessageWithAnimation('Error connecting to AI! Make sure the server is running!', false);
+            }
+
+            document.getElementById('sendBtn').disabled = false;
+        }
+    </script>
+</body>
+</html>

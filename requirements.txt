@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+groq
+python-multipart
+pypdf2
+python-docx
+Pillow
+requests
+duckduckgo-search
+wikipedia
+googlesearch-python
