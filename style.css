@@ -354,11 +354,19 @@ html, body {
 #cameraVideo { width: 100%; border-radius: 12px; margin: 12px 0; }
 
 @media (max-width: 600px) {
-    .header { padding: 10px 12px; }
+    .header { padding: 10px 12px; flex-wrap: wrap; }
     .header-left h1 { font-size: 1.1rem; }
     .developer { display: none; }
     .message { max-width: 90%; }
     .chat-container { padding: 16px 12px; }
-    .input-container { padding: 10px 12px; }
+    .input-container { 
+        padding: 10px 12px; 
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+    }
+    #mainApp { padding-bottom: 70px; }
     .welcome h2 { font-size: 1.5rem; }
 }
