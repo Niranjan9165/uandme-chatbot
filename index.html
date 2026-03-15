@@ -267,7 +267,7 @@
             formData.append('file', file);
             addMessage('Uploading document: ' + file.name, true);
             try {
-                var response = await fetch('http://127.0.0.1:8000/upload', { method: 'POST', body: formData });
+                var response = await fetch('https://uandme-chatbot.onrender.com/upload', { method: 'POST', body: formData });
                 var data = await response.json();
                 if (data.status === 'success') {
                     documentText = data.text;
@@ -289,7 +289,7 @@
             formData.append('file', file);
             addMessage('Uploading image: ' + file.name, true);
             try {
-                var response = await fetch('http://127.0.0.1:8000/upload', { method: 'POST', body: formData });
+                var response = await fetch('https://uandme-chatbot.onrender.com/upload', { method: 'POST', body: formData });
                 var data = await response.json();
                 if (data.status === 'success') {
                     imageBase64 = data.image_base64;
@@ -470,7 +470,7 @@
             document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
 
             try {
-                var response = await fetch('http://127.0.0.1:8000/chat', {
+                var response = await fetch('https://uandme-chatbot.onrender.com/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
