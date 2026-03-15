@@ -307,7 +307,15 @@
             var textNode = document.createElement('div'); textNode.className = 'message-text'; div.appendChild(textNode);
             container.insertBefore(div, typing);
             var i = 0;
-            function typeWriter() { if (i < text.length) { textNode.textContent += text.charAt(i); i++; container.scrollTop = container.scrollHeight; setTimeout(typeWriter, 10); } }
+           function typeWriter() {
+    if (i < text.length) {
+        textNode.textContent += text.charAt(i);
+        i++;
+        container.scrollTop = container.scrollHeight;
+        container.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        setTimeout(typeWriter, 8);
+    }
+}
             typeWriter();
             totalMessages++; totalWords += text.split(' ').length;
         }

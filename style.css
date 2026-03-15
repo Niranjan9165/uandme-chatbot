@@ -96,11 +96,12 @@ html, body {
 .chat-container {
     flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
     padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    scroll-behavior: smooth;
 }
 
 .chat-container::-webkit-scrollbar { width: 4px; }
@@ -183,9 +184,15 @@ html, body {
 
 .sender { font-size: 0.75rem; font-weight: 600; color: var(--primary); }
 
-.message-text { color: var(--text); white-space: pre-wrap; word-break: break-word; }
+.message-text { 
+    color: var(--text); 
+    white-space: pre-wrap; 
+    word-break: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.7;
+}
 
-.message-actions { display: flex; gap: 4px; }
+.message-actions { display: flex; gap: 4px; flex-wrap: wrap; }
 
 .reaction-btn, .copy-btn {
     background: none;
@@ -357,16 +364,27 @@ html, body {
     .header { padding: 10px 12px; flex-wrap: wrap; }
     .header-left h1 { font-size: 1.1rem; }
     .developer { display: none; }
-    .message { max-width: 90%; }
-    .chat-container { padding: 16px 12px; }
+    .message { max-width: 95%; }
+    .ai-message { max-width: 95%; }
+    .message-text { font-size: 0.88rem; line-height: 1.7; }
+    .chat-container { 
+        padding: 12px 10px;
+        padding-bottom: 80px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
     .input-container { 
-        padding: 10px 12px; 
+        padding: 10px 12px;
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
         z-index: 50;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
     }
-    #mainApp { padding-bottom: 70px; }
-    .welcome h2 { font-size: 1.5rem; }
+    .welcome h2 { font-size: 1.4rem; }
+    .suggestions { gap: 6px; }
+    .suggestion { font-size: 0.78rem; padding: 7px 12px; }
 }
