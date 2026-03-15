@@ -12,13 +12,15 @@ load_dotenv()
 
 app = FastAPI(title="U&Me AI")
 
+origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
@@ -117,15 +119,12 @@ def search_wikipedia(query):
 
 def search_all(query):
     results = ""
-    # Try NewsAPI first (most current)
     news = search_newsapi(query)
     if news:
         results += news + "\n"
-    # Try DuckDuckGo
     ddg = search_duckduckgo(query)
     if ddg:
         results += ddg + "\n"
-    # Try Wikipedia
     wiki = search_wikipedia(query)
     if wiki:
         results += wiki + "\n"
@@ -206,75 +205,4 @@ def chat(input: ChatInput):
         messages = [
             {
                 "role": "system",
-                "content": f"""You are U&Me AI. Your personality is {personality_prompts.get(input.personality, 'helpful and friendly')}.
-                You can help with anything - answer questions, write code, translate languages,
-                detect fake news, solve math, write essays, give advice, and much more.
-                Always respond in {input.language} language.
-                Today's date is March 2026.
-                IMPORTANT: NEVER say 'as of my knowledge cutoff'.
-                NEVER say 'I dont have current information'.
-                When search results are provided ALWAYS use them for accurate answers.
-                Always give complete and detailed answers."""
-            }
-        ]
-
-        if web_context:
-            messages.append({
-                "role": "system",
-                "content": f"Real time search results from multiple sources:\n{web_context}\nUse this to give the most accurate and current answer."
-            })
-
-        if input.document_text:
-            messages.append({
-                "role": "system",
-                "content": f"User uploaded document:\n\n{input.document_text}\n\nAnswer questions based on this."
-            })
-
-        for msg in input.history:
-            messages.append(msg)
-
-        if input.image_base64:
-            messages.append({
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{input.image_base64}"
-                        }
-                    },
-                    {
-                        "type": "text",
-                        "text": input.message if input.message else "What is in this image?"
-                    }
-                ]
-            })
-        else:
-            messages.append({
-                "role": "user",
-                "content": input.message
-            })
-
-        model = "meta-llama/llama-4-scout-17b-16e-instruct" if input.image_base64 else "llama-3.3-70b-versatile"
-
-        response = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            max_tokens=2048,
-            temperature=0.7
-        )
-
-        reply = response.choices[0].message.content
-
-        return {
-            "reply": reply,
-            "status": "success",
-            "web_searched": bool(web_context)
-        }
-
-    except Exception as e:
-        return {
-            "reply": "Sorry I encountered an error. Please try again!",
-            "status": "error",
-            "error": str(e)
-        }
+                "content": f"""You are U&Me AI. Your personality is {personality_prompts.get(in
