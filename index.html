@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>U&Me AI</title>
+    <title>Niranjan AI</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
 
         <div class="header">
             <div class="header-left">
-                <h1>U&Me AI</h1>
+                <h1>Niranjan AI</h1>
                 <p>Your Personal AI Assistant — Powered by LLaMA 3</p>
             </div>
             <div class="header-right">
@@ -40,33 +40,19 @@
             </div>
         </div>
 
-        <!-- Stats Modal -->
         <div class="modal" id="statsModal" style="display:none">
             <div class="modal-content">
                 <h3>📊 Chat Statistics</h3>
                 <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-number" id="statMessages">0</div>
-                        <div class="stat-label">Messages</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="statWords">0</div>
-                        <div class="stat-label">Words</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="statQuestions">0</div>
-                        <div class="stat-label">Questions</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="statLanguage">EN</div>
-                        <div class="stat-label">Language</div>
-                    </div>
+                    <div class="stat-box"><div class="stat-number" id="statMessages">0</div><div class="stat-label">Messages</div></div>
+                    <div class="stat-box"><div class="stat-number" id="statWords">0</div><div class="stat-label">Words</div></div>
+                    <div class="stat-box"><div class="stat-number" id="statQuestions">0</div><div class="stat-label">Questions</div></div>
+                    <div class="stat-box"><div class="stat-number" id="statLanguage">EN</div><div class="stat-label">Language</div></div>
                 </div>
                 <button onclick="document.getElementById('statsModal').style.display='none'" style="width:100%;margin-top:15px;border-radius:10px;height:40px;">Close</button>
             </div>
         </div>
 
-        <!-- Camera Modal -->
         <div class="modal" id="cameraModal" style="display:none">
             <div class="modal-content">
                 <h3>📷 Take a Photo</h3>
@@ -81,29 +67,27 @@
 
         <div class="chat-container" id="chatContainer">
             <div class="welcome" id="welcome">
-                <h2>Hello! I am U&Me AI</h2>
+                <h2>Hello! I am Niranjan AI</h2>
                 <p>I can help you with anything! Ask me anything you want.</p>
                 <div class="suggestions">
                     <div class="suggestion" onclick="sendSuggestion('What can you do?')">What can you do?</div>
                     <div class="suggestion" onclick="sendSuggestion('Is this news fake: Scientists discover cure for cancer')">Check fake news</div>
                     <div class="suggestion" onclick="sendSuggestion('Write a Python hello world program')">Write code</div>
                     <div class="suggestion" onclick="sendSuggestion('Translate Hello to Hindi')">Translate language</div>
-                    <div class="suggestion" onclick="sendSuggestion('What is the capital of India?')">Answer questions</div>
+                    <div class="suggestion" onclick="sendSuggestion('What is the weather in Indore today?')">Weather check</div>
                     <div class="suggestion" onclick="sendSuggestion('Solve: 25 x 48 + 100')">Solve math</div>
                 </div>
             </div>
             <div class="message ai-message typing" id="typing">
-                <div class="sender">U&Me AI</div>
-                <div class="typing-dots">
-                    <span></span><span></span><span></span>
-                </div>
+                <div class="sender">Niranjan AI</div>
+                <div class="typing-dots"><span></span><span></span><span></span></div>
             </div>
         </div>
 
         <div class="file-preview" id="filePreview" style="display:none">
             <div class="file-preview-inner">
                 <span id="filePreviewName"></span>
-                <button onclick="clearFile()" class="clear-btn">x</button>
+                <button onclick="clearFile()" class="clear-btn">✕</button>
             </div>
         </div>
 
@@ -123,6 +107,7 @@
     </div>
 
     <script>
+        var API_URL = 'https://uandme-chatbot.onrender.com';
         var chatHistory = [];
         var documentText = "";
         var imageBase64 = "";
@@ -141,13 +126,8 @@
             document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
         }
 
-        function changeLanguage() {
-            currentLanguage = document.getElementById('languageSelect').value;
-        }
-
-        function changePersonality() {
-            currentPersonality = document.getElementById('personalitySelect').value;
-        }
+        function changeLanguage() { currentLanguage = document.getElementById('languageSelect').value; }
+        function changePersonality() { currentPersonality = document.getElementById('personalitySelect').value; }
 
         function showStats() {
             document.getElementById('statMessages').textContent = totalMessages;
@@ -158,15 +138,15 @@
         }
 
         function saveChat() {
-            var text = "U&Me AI Chat History\n====================\n\n";
+            var text = "Niranjan AI Chat History\n====================\n\n";
             chatHistory.forEach(function(msg) {
-                text += (msg.role === 'user' ? 'You: ' : 'U&Me AI: ') + msg.content + "\n\n";
+                text += (msg.role === 'user' ? 'You: ' : 'Niranjan AI: ') + msg.content + "\n\n";
             });
             var blob = new Blob([text], { type: 'text/plain' });
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = 'uandme-chat.txt';
+            a.download = 'niranjan-ai-chat.txt';
             a.click();
         }
 
@@ -174,307 +154,192 @@
             chatHistory = [];
             documentText = "";
             imageBase64 = "";
-            totalMessages = 0;
-            totalWords = 0;
-            totalQuestions = 0;
+            totalMessages = 0; totalWords = 0; totalQuestions = 0;
             var container = document.getElementById('chatContainer');
             var typing = document.getElementById('typing');
             var welcome = document.getElementById('welcome');
             while (container.firstChild) container.removeChild(container.firstChild);
             container.appendChild(welcome);
             container.appendChild(typing);
-            welcome.style.display = 'block';
+            welcome.style.display = 'flex';
             document.getElementById('filePreview').style.display = 'none';
+        }
+
+        async function getWeather(city) {
+            try {
+                var geoRes = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(city) + '&count=1&language=en&format=json');
+                var geoData = await geoRes.json();
+                if (!geoData.results || geoData.results.length === 0) return null;
+                var loc = geoData.results[0];
+                var weatherRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + loc.latitude + '&longitude=' + loc.longitude + '&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&wind_speed_unit=kmh&timezone=auto');
+                var weatherData = await weatherRes.json();
+                var current = weatherData.current;
+                var weatherCodes = {
+                    0:'☀️ Clear sky',1:'🌤️ Mainly clear',2:'⛅ Partly cloudy',3:'☁️ Overcast',
+                    45:'🌫️ Foggy',51:'🌦️ Light drizzle',61:'🌧️ Light rain',63:'🌧️ Rain',
+                    65:'🌧️ Heavy rain',71:'🌨️ Light snow',73:'❄️ Snow',80:'🌦️ Showers',95:'⛈️ Thunderstorm'
+                };
+                var condition = weatherCodes[current.weather_code] || '🌤️ Clear';
+                return 'Weather in ' + loc.name + ', ' + loc.country + ':\n' +
+                       condition + '\nTemperature: ' + current.temperature_2m + '°C\n' +
+                       'Humidity: ' + current.relative_humidity_2m + '%\nWind: ' + current.wind_speed_10m + ' km/h';
+            } catch(e) { return null; }
+        }
+
+        function extractCity(message) {
+            var patterns = [
+                /weather\s+(?:in|of|at|for)\s+([a-zA-Z\s]+?)(?:\?|today|tomorrow|now|$)/i,
+                /([a-zA-Z\s]+?)\s+(?:weather|temperature|temp)/i
+            ];
+            for (var i = 0; i < patterns.length; i++) {
+                var match = message.match(patterns[i]);
+                if (match) return match[1].trim();
+            }
+            return null;
+        }
+
+        function isWeatherQuery(message) {
+            var msg = message.toLowerCase();
+            return msg.includes('weather') || msg.includes('temperature') || msg.includes('temp') || msg.includes('humid') || msg.includes('wind speed');
         }
 
         function toggleVoiceInput() {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert('Voice input not supported! Use Chrome.');
-                return;
-            }
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert('Voice input not supported! Use Chrome.'); return; }
             if (isListening) return;
-
             var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             var recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
-            recognition.onstart = function() {
-                isListening = true;
-                document.getElementById('voiceBtn').textContent = '🔴';
-                document.getElementById('voiceBtn').style.background = 'rgba(233,69,96,0.3)';
-            };
-
-            recognition.onresult = function(event) {
-                var transcript = event.results[0][0].transcript;
-                document.getElementById('userInput').value = transcript;
-                isListening = false;
-                document.getElementById('voiceBtn').textContent = '🎤';
-                document.getElementById('voiceBtn').style.background = '';
-                userSpokeWithMic = true;
-                sendMessage();
-            };
-
-            recognition.onerror = function() {
-                isListening = false;
-                document.getElementById('voiceBtn').textContent = '🎤';
-                document.getElementById('voiceBtn').style.background = '';
-                userSpokeWithMic = false;
-            };
-
-            recognition.onend = function() {
-                isListening = false;
-                document.getElementById('voiceBtn').textContent = '🎤';
-                document.getElementById('voiceBtn').style.background = '';
-            };
-
+            recognition.lang = 'en-US'; recognition.continuous = false; recognition.interimResults = false;
+            recognition.onstart = function() { isListening = true; document.getElementById('voiceBtn').textContent = '🔴'; document.getElementById('voiceBtn').style.background = 'rgba(233,69,96,0.3)'; };
+            recognition.onresult = function(event) { document.getElementById('userInput').value = event.results[0][0].transcript; isListening = false; document.getElementById('voiceBtn').textContent = '🎤'; document.getElementById('voiceBtn').style.background = ''; userSpokeWithMic = true; sendMessage(); };
+            recognition.onerror = function() { isListening = false; document.getElementById('voiceBtn').textContent = '🎤'; document.getElementById('voiceBtn').style.background = ''; };
+            recognition.onend = function() { isListening = false; document.getElementById('voiceBtn').textContent = '🎤'; document.getElementById('voiceBtn').style.background = ''; };
             recognition.start();
         }
 
-        function speakText(text) {
-            try {
-                window.speechSynthesis.cancel();
-                setTimeout(function() {
-                    var utterance = new SpeechSynthesisUtterance(text);
-                    utterance.volume = 1;
-                    utterance.rate = 0.9;
-                    utterance.pitch = 1;
-                    window.speechSynthesis.speak(utterance);
-                }, 300);
-            } catch(e) {
-                console.log("Speech error:", e);
-            }
-        }
-
-        function clearFile() {
-            documentText = "";
-            imageBase64 = "";
-            document.getElementById('filePreview').style.display = 'none';
-            document.getElementById('fileInput').value = '';
-            document.getElementById('imageInput').value = '';
-        }
-
-        function showFilePreview(name) {
-            document.getElementById('filePreviewName').textContent = name;
-            document.getElementById('filePreview').style.display = 'block';
-        }
+        function clearFile() { documentText = ""; imageBase64 = ""; document.getElementById('filePreview').style.display = 'none'; document.getElementById('fileInput').value = ''; document.getElementById('imageInput').value = ''; }
+        function showFilePreview(name) { document.getElementById('filePreviewName').textContent = '📎 ' + name; document.getElementById('filePreview').style.display = 'block'; }
 
         async function handleFileUpload(event) {
-            var file = event.target.files[0];
-            if (!file) return;
-            var formData = new FormData();
-            formData.append('file', file);
+            var file = event.target.files[0]; if (!file) return;
+            var formData = new FormData(); formData.append('file', file);
             addMessage('Uploading document: ' + file.name, true);
             try {
-                var response = await fetch('https://uandme-chatbot.onrender.com/upload', { method: 'POST', body: formData });
+                var response = await fetch(API_URL + '/upload', { method: 'POST', body: formData });
                 var data = await response.json();
-                if (data.status === 'success') {
-                    documentText = data.text;
-                    imageBase64 = "";
-                    showFilePreview(file.name);
-                    addMessageWithAnimation('Document uploaded! You can now ask questions about it.', false);
-                } else {
-                    addMessageWithAnimation('Error: ' + data.message, false);
-                }
-            } catch (error) {
-                addMessageWithAnimation('Error uploading document!', false);
-            }
+                if (data.status === 'success') { documentText = data.text; imageBase64 = ""; showFilePreview(file.name); addMessageWithAnimation('Document uploaded! Ask me anything about it.', false); }
+                else { addMessageWithAnimation('Error: ' + data.message, false); }
+            } catch (error) { addMessageWithAnimation('Error uploading document!', false); }
         }
 
         async function handleImageUpload(event) {
-            var file = event.target.files[0];
-            if (!file) return;
-            var formData = new FormData();
-            formData.append('file', file);
+            var file = event.target.files[0]; if (!file) return;
+            var formData = new FormData(); formData.append('file', file);
             addMessage('Uploading image: ' + file.name, true);
             try {
-                var response = await fetch('https://uandme-chatbot.onrender.com/upload', { method: 'POST', body: formData });
+                var response = await fetch(API_URL + '/upload', { method: 'POST', body: formData });
                 var data = await response.json();
-                if (data.status === 'success') {
-                    imageBase64 = data.image_base64;
-                    documentText = "";
-                    showFilePreview(file.name);
-                    addMessageWithAnimation('Image uploaded! You can now ask questions about it.', false);
-                } else {
-                    addMessageWithAnimation('Error: ' + data.message, false);
-                }
-            } catch (error) {
-                addMessageWithAnimation('Error uploading image!', false);
-            }
+                if (data.status === 'success') { imageBase64 = data.image_base64; documentText = ""; showFilePreview(file.name); addMessageWithAnimation('Image uploaded! Ask me anything about it.', false); }
+                else { addMessageWithAnimation('Error: ' + data.message, false); }
+            } catch (error) { addMessageWithAnimation('Error uploading image!', false); }
         }
 
         async function openCamera() {
             document.getElementById('cameraModal').style.display = 'flex';
-            try {
-                var stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                document.getElementById('cameraVideo').srcObject = stream;
-            } catch (error) {
-                alert('Cannot access camera!');
-                closeCamera();
-            }
+            try { var stream = await navigator.mediaDevices.getUserMedia({ video: true }); document.getElementById('cameraVideo').srcObject = stream; }
+            catch (error) { alert('Cannot access camera!'); closeCamera(); }
         }
 
         function closeCamera() {
             var video = document.getElementById('cameraVideo');
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(function(track) { track.stop(); });
-            }
+            if (video.srcObject) { video.srcObject.getTracks().forEach(function(track) { track.stop(); }); }
             document.getElementById('cameraModal').style.display = 'none';
         }
 
         function capturePhoto() {
-            var video = document.getElementById('cameraVideo');
-            var canvas = document.getElementById('cameraCanvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            var video = document.getElementById('cameraVideo'); var canvas = document.getElementById('cameraCanvas');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
             imageBase64 = canvas.toDataURL('image/jpeg').split(',')[1];
-            documentText = "";
-            closeCamera();
-            showFilePreview('Camera Photo');
-            addMessageWithAnimation('Photo taken! You can now ask questions about it.', false);
+            documentText = ""; closeCamera(); showFilePreview('Camera Photo');
+            addMessageWithAnimation('Photo taken! Ask me anything about it.', false);
         }
 
-        function addReaction(btn, emoji) {
-            btn.textContent = emoji;
-            btn.style.background = 'rgba(108,99,255,0.2)';
-        }
-
-        function handleKey(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
-        }
-
-        function sendSuggestion(text) {
-            document.getElementById('userInput').value = text;
-            sendMessage();
-        }
-
-        function copyMessage(text, btn) {
-            navigator.clipboard.writeText(text).then(function() {
-                btn.textContent = '✅';
-                setTimeout(function() { btn.textContent = '📋'; }, 2000);
-            });
-        }
+        function addReaction(btn, emoji) { btn.textContent = emoji; btn.style.background = 'rgba(255,107,26,0.2)'; }
+        function handleKey(event) { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }
+        function sendSuggestion(text) { document.getElementById('userInput').value = text; sendMessage(); }
+        function copyMessage(text, btn) { navigator.clipboard.writeText(text).then(function() { btn.textContent = '✅'; setTimeout(function() { btn.textContent = '📋'; }, 2000); }); }
 
         function addMessage(text, isUser) {
-            var welcome = document.getElementById('welcome');
-            if (welcome) welcome.style.display = 'none';
-            var container = document.getElementById('chatContainer');
-            var typing = document.getElementById('typing');
-            var div = document.createElement('div');
-            div.className = 'message ' + (isUser ? 'user-message' : 'ai-message');
+            var welcome = document.getElementById('welcome'); if (welcome) welcome.style.display = 'none';
+            var container = document.getElementById('chatContainer'); var typing = document.getElementById('typing');
+            var div = document.createElement('div'); div.className = 'message ' + (isUser ? 'user-message' : 'ai-message');
             if (!isUser) {
-                var header = document.createElement('div');
-                header.className = 'message-header';
-                var sender = document.createElement('div');
-                sender.className = 'sender';
-                sender.textContent = 'U&Me AI';
-                var actions = document.createElement('div');
-                actions.className = 'message-actions';
-                var copyBtn = document.createElement('button');
-                copyBtn.className = 'copy-btn';
-                copyBtn.textContent = '📋';
+                var header = document.createElement('div'); header.className = 'message-header';
+                var sender = document.createElement('div'); sender.className = 'sender'; sender.textContent = 'Niranjan AI';
+                var actions = document.createElement('div'); actions.className = 'message-actions';
+                var copyBtn = document.createElement('button'); copyBtn.className = 'copy-btn'; copyBtn.textContent = '📋';
                 copyBtn.onclick = function() { copyMessage(text, copyBtn); };
-                var reactions = ['👍','❤️','😂','😮','😢'];
-                reactions.forEach(function(emoji) {
-                    var btn = document.createElement('button');
-                    btn.className = 'reaction-btn';
-                    btn.textContent = emoji;
-                    btn.onclick = function() { addReaction(btn, emoji); };
-                    actions.appendChild(btn);
+                ['👍','❤️','😂','😮','😢'].forEach(function(emoji) {
+                    var btn = document.createElement('button'); btn.className = 'reaction-btn'; btn.textContent = emoji;
+                    btn.onclick = function() { addReaction(btn, emoji); }; actions.appendChild(btn);
                 });
-                actions.appendChild(copyBtn);
-                header.appendChild(sender);
-                header.appendChild(actions);
-                div.appendChild(header);
+                actions.appendChild(copyBtn); header.appendChild(sender); header.appendChild(actions); div.appendChild(header);
             }
-            var textNode = document.createElement('div');
-            textNode.className = 'message-text';
-            textNode.textContent = text;
-            div.appendChild(textNode);
-            container.insertBefore(div, typing);
-            container.scrollTop = container.scrollHeight;
-            totalMessages++;
-            totalWords += text.split(' ').length;
-            if (text.includes('?')) totalQuestions++;
+            var textNode = document.createElement('div'); textNode.className = 'message-text'; textNode.textContent = text;
+            div.appendChild(textNode); container.insertBefore(div, typing); container.scrollTop = container.scrollHeight;
+            totalMessages++; totalWords += text.split(' ').length; if (text.includes('?')) totalQuestions++;
         }
 
-        function addMessageWithAnimation(text, spokeWithMic) {
-            var welcome = document.getElementById('welcome');
-            if (welcome) welcome.style.display = 'none';
-            var container = document.getElementById('chatContainer');
-            var typing = document.getElementById('typing');
-            var div = document.createElement('div');
-            div.className = 'message ai-message';
-            var header = document.createElement('div');
-            header.className = 'message-header';
-            var sender = document.createElement('div');
-            sender.className = 'sender';
-            sender.textContent = 'U&Me AI';
-            var actions = document.createElement('div');
-            actions.className = 'message-actions';
-            var copyBtn = document.createElement('button');
-            copyBtn.className = 'copy-btn';
-            copyBtn.textContent = '📋';
+        function addMessageWithAnimation(text) {
+            var welcome = document.getElementById('welcome'); if (welcome) welcome.style.display = 'none';
+            var container = document.getElementById('chatContainer'); var typing = document.getElementById('typing');
+            var div = document.createElement('div'); div.className = 'message ai-message';
+            var header = document.createElement('div'); header.className = 'message-header';
+            var sender = document.createElement('div'); sender.className = 'sender'; sender.textContent = 'Niranjan AI';
+            var actions = document.createElement('div'); actions.className = 'message-actions';
+            var copyBtn = document.createElement('button'); copyBtn.className = 'copy-btn'; copyBtn.textContent = '📋';
             copyBtn.onclick = function() { copyMessage(text, copyBtn); };
-            var reactions = ['👍','❤️','😂','😮','😢'];
-            reactions.forEach(function(emoji) {
-                var btn = document.createElement('button');
-                btn.className = 'reaction-btn';
-                btn.textContent = emoji;
-                btn.onclick = function() { addReaction(btn, emoji); };
-                actions.appendChild(btn);
+            ['👍','❤️','😂','😮','😢'].forEach(function(emoji) {
+                var btn = document.createElement('button'); btn.className = 'reaction-btn'; btn.textContent = emoji;
+                btn.onclick = function() { addReaction(btn, emoji); }; actions.appendChild(btn);
             });
-            actions.appendChild(copyBtn);
-            header.appendChild(sender);
-            header.appendChild(actions);
-            div.appendChild(header);
-            var textNode = document.createElement('div');
-            textNode.className = 'message-text';
-            div.appendChild(textNode);
+            actions.appendChild(copyBtn); header.appendChild(sender); header.appendChild(actions); div.appendChild(header);
+            var textNode = document.createElement('div'); textNode.className = 'message-text'; div.appendChild(textNode);
             container.insertBefore(div, typing);
-
-            
             var i = 0;
-            function typeWriter() {
-                if (i < text.length) {
-                    textNode.textContent += text.charAt(i);
-                    i++;
-                    container.scrollTop = container.scrollHeight;
-                    setTimeout(typeWriter, 10);
-                }
-            }
+            function typeWriter() { if (i < text.length) { textNode.textContent += text.charAt(i); i++; container.scrollTop = container.scrollHeight; setTimeout(typeWriter, 10); } }
             typeWriter();
-            totalMessages++;
-            totalWords += text.split(' ').length;
+            totalMessages++; totalWords += text.split(' ').length;
         }
 
         async function sendMessage() {
             var input = document.getElementById('userInput');
             var text = input.value.trim();
             if (!text && !imageBase64) return;
-
-            var spokeWithMic = userSpokeWithMic;
             userSpokeWithMic = false;
-
             input.value = '';
             document.getElementById('sendBtn').disabled = true;
             if (text) addMessage(text, true);
-
             chatHistory.push({ role: 'user', content: text || 'What is in this image?' });
             document.getElementById('typing').style.display = 'block';
             document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
 
             try {
-                var response = await fetch('https://uandme-chatbot.onrender.com/chat', {
+                var weatherContext = "";
+                if (isWeatherQuery(text)) {
+                    var city = extractCity(text) || "Indore";
+                    var weatherInfo = await getWeather(city);
+                    if (weatherInfo) weatherContext = weatherInfo;
+                }
+
+                var messageToSend = text;
+                if (weatherContext) messageToSend = text + "\n\n[Real-time weather data: " + weatherContext + "]";
+
+                var response = await fetch(API_URL + '/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        message: text || 'What is in this image?',
+                        message: messageToSend || 'What is in this image?',
                         history: chatHistory.slice(-10),
                         document_text: documentText,
                         image_base64: imageBase64,
@@ -485,19 +350,14 @@
 
                 var data = await response.json();
                 document.getElementById('typing').style.display = 'none';
-                addMessageWithAnimation(data.reply, spokeWithMic);
+                addMessageWithAnimation(data.reply);
                 chatHistory.push({ role: 'assistant', content: data.reply });
-
-                if (imageBase64) {
-                    imageBase64 = "";
-                    document.getElementById('filePreview').style.display = 'none';
-                }
+                if (imageBase64) { imageBase64 = ""; document.getElementById('filePreview').style.display = 'none'; }
 
             } catch (error) {
                 document.getElementById('typing').style.display = 'none';
-                addMessageWithAnimation('Error connecting to AI! Make sure the server is running!', false);
+                addMessageWithAnimation('Error connecting to AI! Please wait 30 seconds and try again.');
             }
-
             document.getElementById('sendBtn').disabled = false;
         }
     </script>
