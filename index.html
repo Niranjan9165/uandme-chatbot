@@ -34,6 +34,8 @@
                 </select>
                 <button onclick="showStats()" class="header-btn" title="Statistics">📊</button>
                 <button onclick="saveChat()" class="header-btn" title="Save Chat">💾</button>
+                <button onclick="shareChat()" class="header-btn" title="Share Chat">📤</button>
+                <button onclick="printChat()" class="header-btn" title="Print Chat">🖨️</button>
                 <button onclick="clearChat()" class="header-btn" title="Clear Chat">🗑️</button>
                 <button onclick="toggleTheme()" class="header-btn" id="themeBtn" title="Toggle Theme">☀️</button>
                 <div class="developer">Developed by Niranjan Choudhary</div>
@@ -53,6 +55,18 @@
             </div>
         </div>
 
+        <div class="modal" id="shareModal" style="display:none">
+            <div class="modal-content">
+                <h3>📤 Share Chat</h3>
+                <p style="color:var(--text2);font-size:0.85rem;margin-bottom:16px;">Share your conversation!</p>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <button onclick="shareWhatsApp()" style="background:linear-gradient(135deg,#25d366,#128c7e);">📱 Share on WhatsApp</button>
+                    <button onclick="copyShareLink()" style="background:linear-gradient(135deg,var(--primary),var(--primary2));">🔗 Copy Chat Link</button>
+                    <button onclick="document.getElementById('shareModal').style.display='none'" class="cancel-btn" style="margin-top:4px;">Close</button>
+                </div>
+            </div>
+        </div>
+
         <div class="modal" id="cameraModal" style="display:none">
             <div class="modal-content">
                 <h3>📷 Take a Photo</h3>
@@ -61,6 +75,17 @@
                 <div class="modal-buttons">
                     <button onclick="capturePhoto()">Capture</button>
                     <button onclick="closeCamera()" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="imageModal" style="display:none">
+            <div class="modal-content" style="text-align:center;">
+                <h3>🎨 Generated Image</h3>
+                <img id="generatedImage" style="width:100%;border-radius:12px;margin:12px 0;" />
+                <div style="display:flex;gap:10px;margin-top:8px;">
+                    <button onclick="downloadImage()" style="flex:1;">⬇️ Download</button>
+                    <button onclick="document.getElementById('imageModal').style.display='none'" class="cancel-btn" style="flex:1;">Close</button>
                 </div>
             </div>
         </div>
@@ -75,7 +100,7 @@
                     <div class="suggestion" onclick="sendSuggestion('Write a Python hello world program')">Write code</div>
                     <div class="suggestion" onclick="sendSuggestion('Translate Hello to Hindi')">Translate language</div>
                     <div class="suggestion" onclick="sendSuggestion('What is the weather in Indore today?')">Weather check</div>
-                    <div class="suggestion" onclick="sendSuggestion('Solve: 25 x 48 + 100')">Solve math</div>
+                    <div class="suggestion" onclick="sendSuggestion('Generate an image of a beautiful sunset')">🎨 Generate image</div>
                 </div>
             </div>
             <div class="message ai-message typing" id="typing">
@@ -100,7 +125,7 @@
             </div>
             <input type="file" id="fileInput" accept=".pdf,.docx,.txt" style="display:none" onchange="handleFileUpload(event)">
             <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
-            <textarea id="userInput" placeholder="Ask me anything..." rows="1" onkeydown="handleKey(event)"></textarea>
+            <textarea id="userInput" placeholder="Ask me anything or say 'generate image of...'" rows="1" onkeydown="handleKey(event)"></textarea>
             <button onclick="sendMessage()" id="sendBtn">➤</button>
         </div>
 
@@ -119,6 +144,7 @@
         var totalQuestions = 0;
         var isListening = false;
         var userSpokeWithMic = false;
+        var currentGeneratedImageUrl = "";
 
         function toggleTheme() {
             isDark = !isDark;
@@ -150,6 +176,48 @@
             a.click();
         }
 
+        function shareChat() {
+            document.getElementById('shareModal').style.display = 'flex';
+        }
+
+        function shareWhatsApp() {
+            var text = "Check out Niranjan AI - My Personal AI Assistant!\n\nhttps://niranjanai.netlify.app\n\nPowered by LLaMA 3 🤖";
+            var url = "https://wa.me/?text=" + encodeURIComponent(text);
+            window.open(url, '_blank');
+        }
+
+        function copyShareLink() {
+            navigator.clipboard.writeText("https://niranjanai.netlify.app").then(function() {
+                alert('Link copied! Share it with your friends 😊');
+            });
+            document.getElementById('shareModal').style.display = 'none';
+        }
+
+        function printChat() {
+            var printContent = "<html><head><title>Niranjan AI Chat</title>";
+            printContent += "<style>body{font-family:Arial,sans-serif;padding:20px;max-width:800px;margin:0 auto;}";
+            printContent += "h1{color:#6c63ff;border-bottom:2px solid #6c63ff;padding-bottom:10px;}";
+            printContent += ".message{margin:15px 0;padding:12px;border-radius:8px;}";
+            printContent += ".user{background:#f0f0ff;border-left:4px solid #6c63ff;}";
+            printContent += ".ai{background:#f9f9f9;border-left:4px solid #e94560;}";
+            printContent += ".label{font-weight:bold;margin-bottom:5px;font-size:0.85rem;}";
+            printContent += ".user .label{color:#6c63ff;} .ai .label{color:#e94560;}";
+            printContent += "</style></head><body>";
+            printContent += "<h1>🤖 Niranjan AI - Chat History</h1>";
+            printContent += "<p style='color:#666;font-size:0.85rem;'>Generated on " + new Date().toLocaleString() + "</p><br>";
+            chatHistory.forEach(function(msg) {
+                var isUser = msg.role === 'user';
+                printContent += "<div class='message " + (isUser ? 'user' : 'ai') + "'>";
+                printContent += "<div class='label'>" + (isUser ? '👤 You' : '🤖 Niranjan AI') + "</div>";
+                printContent += "<div>" + msg.content.replace(/\n/g, '<br>') + "</div></div>";
+            });
+            printContent += "</body></html>";
+            var printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
         function clearChat() {
             chatHistory = [];
             documentText = "";
@@ -163,6 +231,47 @@
             container.appendChild(typing);
             welcome.style.display = 'flex';
             document.getElementById('filePreview').style.display = 'none';
+        }
+
+        function isImageRequest(message) {
+            var msg = message.toLowerCase();
+            return msg.includes('generate image') || msg.includes('create image') ||
+                   msg.includes('make image') || msg.includes('draw') ||
+                   msg.includes('generate a picture') || msg.includes('create a picture') ||
+                   msg.includes('generate an image') || msg.includes('image of') ||
+                   msg.includes('picture of');
+        }
+
+        function extractImagePrompt(message) {
+            var patterns = [
+                /generate (?:an? )?image of (.+)/i,
+                /create (?:an? )?image of (.+)/i,
+                /make (?:an? )?image of (.+)/i,
+                /generate (?:an? )?picture of (.+)/i,
+                /draw (.+)/i,
+                /image of (.+)/i,
+                /picture of (.+)/i
+            ];
+            for (var i = 0; i < patterns.length; i++) {
+                var match = message.match(patterns[i]);
+                if (match) return match[1].trim();
+            }
+            return message;
+        }
+
+        async function generateImage(prompt) {
+            var encodedPrompt = encodeURIComponent(prompt);
+            var imageUrl = "https://image.pollinations.ai/prompt/" + encodedPrompt + "?width=512&height=512&nologo=true";
+            return imageUrl;
+        }
+
+        function downloadImage() {
+            if (!currentGeneratedImageUrl) return;
+            var a = document.createElement('a');
+            a.href = currentGeneratedImageUrl;
+            a.download = 'niranjan-ai-image.jpg';
+            a.target = '_blank';
+            a.click();
         }
 
         async function getWeather(city) {
@@ -226,9 +335,9 @@
             try {
                 var response = await fetch(API_URL + '/upload', { method: 'POST', body: formData });
                 var data = await response.json();
-                if (data.status === 'success') { documentText = data.text; imageBase64 = ""; showFilePreview(file.name); addMessageWithAnimation('Document uploaded! Ask me anything about it.', false); }
-                else { addMessageWithAnimation('Error: ' + data.message, false); }
-            } catch (error) { addMessageWithAnimation('Error uploading document!', false); }
+                if (data.status === 'success') { documentText = data.text; imageBase64 = ""; showFilePreview(file.name); addMessageWithAnimation('Document uploaded! Ask me anything about it.'); }
+                else { addMessageWithAnimation('Error: ' + data.message); }
+            } catch (error) { addMessageWithAnimation('Error uploading document!'); }
         }
 
         async function handleImageUpload(event) {
@@ -238,9 +347,9 @@
             try {
                 var response = await fetch(API_URL + '/upload', { method: 'POST', body: formData });
                 var data = await response.json();
-                if (data.status === 'success') { imageBase64 = data.image_base64; documentText = ""; showFilePreview(file.name); addMessageWithAnimation('Image uploaded! Ask me anything about it.', false); }
-                else { addMessageWithAnimation('Error: ' + data.message, false); }
-            } catch (error) { addMessageWithAnimation('Error uploading image!', false); }
+                if (data.status === 'success') { imageBase64 = data.image_base64; documentText = ""; showFilePreview(file.name); addMessageWithAnimation('Image uploaded! Ask me anything about it.'); }
+                else { addMessageWithAnimation('Error: ' + data.message); }
+            } catch (error) { addMessageWithAnimation('Error uploading image!'); }
         }
 
         async function openCamera() {
@@ -261,10 +370,10 @@
             canvas.getContext('2d').drawImage(video, 0, 0);
             imageBase64 = canvas.toDataURL('image/jpeg').split(',')[1];
             documentText = ""; closeCamera(); showFilePreview('Camera Photo');
-            addMessageWithAnimation('Photo taken! Ask me anything about it.', false);
+            addMessageWithAnimation('Photo taken! Ask me anything about it.');
         }
 
-        function addReaction(btn, emoji) { btn.textContent = emoji; btn.style.background = 'rgba(255,107,26,0.2)'; }
+        function addReaction(btn, emoji) { btn.textContent = emoji; btn.style.background = 'rgba(108,99,255,0.2)'; }
         function handleKey(event) { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }
         function sendSuggestion(text) { document.getElementById('userInput').value = text; sendMessage(); }
         function copyMessage(text, btn) { navigator.clipboard.writeText(text).then(function() { btn.textContent = '✅'; setTimeout(function() { btn.textContent = '📋'; }, 2000); }); }
@@ -290,6 +399,30 @@
             totalMessages++; totalWords += text.split(' ').length; if (text.includes('?')) totalQuestions++;
         }
 
+        function addImageMessage(imageUrl, prompt) {
+            var welcome = document.getElementById('welcome'); if (welcome) welcome.style.display = 'none';
+            var container = document.getElementById('chatContainer'); var typing = document.getElementById('typing');
+            var div = document.createElement('div'); div.className = 'message ai-message';
+            var header = document.createElement('div'); header.className = 'message-header';
+            var sender = document.createElement('div'); sender.className = 'sender'; sender.textContent = 'Niranjan AI';
+            header.appendChild(sender); div.appendChild(header);
+            var textNode = document.createElement('div'); textNode.className = 'message-text';
+            textNode.textContent = '🎨 Generated image for: "' + prompt + '"';
+            div.appendChild(textNode);
+            var img = document.createElement('img');
+            img.src = imageUrl;
+            img.style.cssText = 'width:100%;max-width:300px;border-radius:12px;margin-top:10px;cursor:pointer;display:block;';
+            img.onclick = function() {
+                currentGeneratedImageUrl = imageUrl;
+                document.getElementById('generatedImage').src = imageUrl;
+                document.getElementById('imageModal').style.display = 'flex';
+            };
+            img.onerror = function() { textNode.textContent = '❌ Image generation failed. Try a different prompt!'; };
+            div.appendChild(img);
+            container.insertBefore(div, typing); container.scrollTop = container.scrollHeight;
+            totalMessages++;
+        }
+
         function addMessageWithAnimation(text) {
             var welcome = document.getElementById('welcome'); if (welcome) welcome.style.display = 'none';
             var container = document.getElementById('chatContainer'); var typing = document.getElementById('typing');
@@ -307,15 +440,13 @@
             var textNode = document.createElement('div'); textNode.className = 'message-text'; div.appendChild(textNode);
             container.insertBefore(div, typing);
             var i = 0;
-           function typeWriter() {
-    if (i < text.length) {
-        textNode.textContent += text.charAt(i);
-        i++;
-        container.scrollTop = container.scrollHeight;
-        container.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        setTimeout(typeWriter, 8);
-    }
-}
+            function typeWriter() {
+                if (i < text.length) {
+                    textNode.textContent += text.charAt(i); i++;
+                    container.scrollTop = container.scrollHeight;
+                    setTimeout(typeWriter, 8);
+                }
+            }
             typeWriter();
             totalMessages++; totalWords += text.split(' ').length;
         }
@@ -333,6 +464,18 @@
             document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
 
             try {
+                // Check if image generation request
+                if (isImageRequest(text)) {
+                    var prompt = extractImagePrompt(text);
+                    var imageUrl = await generateImage(prompt);
+                    document.getElementById('typing').style.display = 'none';
+                    addImageMessage(imageUrl, prompt);
+                    chatHistory.push({ role: 'assistant', content: 'I generated an image for: ' + prompt });
+                    document.getElementById('sendBtn').disabled = false;
+                    return;
+                }
+
+                // Check if weather query
                 var weatherContext = "";
                 if (isWeatherQuery(text)) {
                     var city = extractCity(text) || "Indore";
@@ -371,3 +514,4 @@
     </script>
 </body>
 </html>
+
