@@ -17,34 +17,34 @@
             </div>
             <div class="header-right">
                 <select id="languageSelect" class="lang-select" onchange="changeLanguage()">
-                    <option value="English">🌐 English</option>
-                    <option value="Hindi">🇮🇳 Hindi</option>
-                    <option value="Spanish">🇪🇸 Spanish</option>
-                    <option value="French">🇫🇷 French</option>
-                    <option value="Arabic">🇸🇦 Arabic</option>
-                    <option value="Chinese">🇨🇳 Chinese</option>
-                    <option value="Japanese">🇯🇵 Japanese</option>
+                    <option value="English">English</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="Spanish">Spanish</option>
+                    <option value="French">French</option>
+                    <option value="Arabic">Arabic</option>
+                    <option value="Chinese">Chinese</option>
+                    <option value="Japanese">Japanese</option>
                 </select>
                 <select id="personalitySelect" class="lang-select" onchange="changePersonality()">
-                    <option value="helpful">😊 Helpful</option>
-                    <option value="professional">💼 Professional</option>
-                    <option value="friendly">🤗 Friendly</option>
-                    <option value="funny">😄 Funny</option>
-                    <option value="teacher">👨‍🏫 Teacher</option>
+                    <option value="helpful">Helpful</option>
+                    <option value="professional">Professional</option>
+                    <option value="friendly">Friendly</option>
+                    <option value="funny">Funny</option>
+                    <option value="teacher">Teacher</option>
                 </select>
-                <button onclick="showStats()" class="header-btn" title="Statistics">📊</button>
-                <button onclick="saveChat()" class="header-btn" title="Save Chat">💾</button>
-                <button onclick="shareChat()" class="header-btn" title="Share Chat">📤</button>
-                <button onclick="printChat()" class="header-btn" title="Print Chat">🖨️</button>
-                <button onclick="clearChat()" class="header-btn" title="Clear Chat">🗑️</button>
-                <button onclick="toggleTheme()" class="header-btn" id="themeBtn" title="Toggle Theme">☀️</button>
+                <button onclick="showStats()" class="header-btn" title="Statistics">Stats</button>
+                <button onclick="saveChat()" class="header-btn" title="Save Chat">Save</button>
+                <button onclick="shareChat()" class="header-btn" title="Share Chat">Share</button>
+                <button onclick="printChat()" class="header-btn" title="Print Chat">Print</button>
+                <button onclick="clearChat()" class="header-btn" title="Clear Chat">Clear</button>
+                <button onclick="toggleTheme()" class="header-btn" id="themeBtn" title="Toggle Theme">Light</button>
                 <div class="developer">Developed by Niranjan Choudhary</div>
             </div>
         </div>
 
         <div class="modal" id="statsModal" style="display:none">
             <div class="modal-content">
-                <h3>📊 Chat Statistics</h3>
+                <h3>Chat Statistics</h3>
                 <div class="stats-grid">
                     <div class="stat-box"><div class="stat-number" id="statMessages">0</div><div class="stat-label">Messages</div></div>
                     <div class="stat-box"><div class="stat-number" id="statWords">0</div><div class="stat-label">Words</div></div>
@@ -57,11 +57,11 @@
 
         <div class="modal" id="shareModal" style="display:none">
             <div class="modal-content">
-                <h3>📤 Share Chat</h3>
+                <h3>Share Chat</h3>
                 <p style="color:var(--text2);font-size:0.85rem;margin-bottom:16px;">Share your conversation!</p>
                 <div style="display:flex;flex-direction:column;gap:10px;">
-                    <button onclick="shareWhatsApp()" style="background:linear-gradient(135deg,#25d366,#128c7e);">📱 Share on WhatsApp</button>
-                    <button onclick="copyShareLink()" style="background:linear-gradient(135deg,var(--primary),var(--primary2));">🔗 Copy Chat Link</button>
+                    <button onclick="shareWhatsApp()" style="background:linear-gradient(135deg,#25d366,#128c7e);">Share on WhatsApp</button>
+                    <button onclick="copyShareLink()" style="background:linear-gradient(135deg,var(--primary),var(--primary2));">Copy Link</button>
                     <button onclick="document.getElementById('shareModal').style.display='none'" class="cancel-btn" style="margin-top:4px;">Close</button>
                 </div>
             </div>
@@ -69,7 +69,7 @@
 
         <div class="modal" id="cameraModal" style="display:none">
             <div class="modal-content">
-                <h3>📷 Take a Photo</h3>
+                <h3>Take a Photo</h3>
                 <video id="cameraVideo" autoplay></video>
                 <canvas id="cameraCanvas" style="display:none"></canvas>
                 <div class="modal-buttons">
@@ -81,10 +81,10 @@
 
         <div class="modal" id="imageModal" style="display:none">
             <div class="modal-content" style="text-align:center;">
-                <h3>🎨 Generated Image</h3>
+                <h3>Generated Image</h3>
                 <img id="generatedImage" style="width:100%;border-radius:12px;margin:12px 0;" />
                 <div style="display:flex;gap:10px;margin-top:8px;">
-                    <button onclick="downloadImage()" style="flex:1;">⬇️ Download</button>
+                    <button onclick="downloadImage()" style="flex:1;">Download</button>
                     <button onclick="document.getElementById('imageModal').style.display='none'" class="cancel-btn" style="flex:1;">Close</button>
                 </div>
             </div>
@@ -100,7 +100,7 @@
                     <div class="suggestion" onclick="sendSuggestion('Write a Python hello world program')">Write code</div>
                     <div class="suggestion" onclick="sendSuggestion('Translate Hello to Hindi')">Translate language</div>
                     <div class="suggestion" onclick="sendSuggestion('What is the weather in Indore today?')">Weather check</div>
-                    <div class="suggestion" onclick="sendSuggestion('Generate an image of a beautiful sunset')">🎨 Generate image</div>
+                    <div class="suggestion" onclick="sendSuggestion('Generate an image of a beautiful sunset')">Generate image</div>
                 </div>
             </div>
             <div class="message ai-message typing" id="typing">
@@ -116,17 +116,37 @@
             </div>
         </div>
 
-        <div class="input-container">
-            <div class="input-buttons">
-                <button onclick="document.getElementById('fileInput').click()" class="icon-btn" title="Upload Document">📄</button>
-                <button onclick="document.getElementById('imageInput').click()" class="icon-btn" title="Upload Image">🖼️</button>
-                <button onclick="openCamera()" class="icon-btn" title="Take Photo">📷</button>
-                <button onclick="toggleVoiceInput()" class="icon-btn" id="voiceBtn" title="Voice Input">🎤</button>
-            </div>
+        <div class="input-wrapper">
             <input type="file" id="fileInput" accept=".pdf,.docx,.txt" style="display:none" onchange="handleFileUpload(event)">
             <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
-            <textarea id="userInput" placeholder="Ask me anything or say 'generate image of...'" rows="1" onkeydown="handleKey(event)"></textarea>
-            <button onclick="sendMessage()" id="sendBtn">➤</button>
+
+            <div class="plus-menu" id="plusMenu" style="display:none">
+                <button onclick="document.getElementById('fileInput').click();togglePlusMenu()" class="plus-menu-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+                    Upload Document
+                </button>
+                <button onclick="document.getElementById('imageInput').click();togglePlusMenu()" class="plus-menu-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                    Upload Image
+                </button>
+                <button onclick="openCamera();togglePlusMenu()" class="plus-menu-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4zm0-8.2a5 5 0 1 1 0 10A5 5 0 0 1 12 7zM9 3l-1.83 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9z"/></svg>
+                    Take Photo
+                </button>
+            </div>
+
+            <div class="input-container">
+                <button onclick="togglePlusMenu()" class="plus-btn" id="plusBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                </button>
+                <textarea id="userInput" placeholder="Message Niranjan AI..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+                <button onclick="toggleVoiceInput()" class="voice-btn" id="voiceBtn" title="Voice Input">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v6a2 2 0 0 0 4 0V5a2 2 0 0 0-2-2zm7 8a1 1 0 0 1 1 1 8 8 0 0 1-7 7.94V21h2a1 1 0 0 1 0 2H9a1 1 0 0 1 0-2h2v-1.06A8 8 0 0 1 4 12a1 1 0 0 1 2 0 6 6 0 0 0 12 0 1 1 0 0 1 1-1z"/></svg>
+                </button>
+                <button onclick="sendMessage()" id="sendBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21L23 12 2 3v7l15 2-15 2v7z"/></svg>
+                </button>
+            </div>
         </div>
 
     </div>
@@ -149,7 +169,7 @@
         function toggleTheme() {
             isDark = !isDark;
             document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-            document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+            document.getElementById('themeBtn').textContent = isDark ? 'Light' : 'Dark';
         }
 
         function changeLanguage() { currentLanguage = document.getElementById('languageSelect').value; }
@@ -176,19 +196,16 @@
             a.click();
         }
 
-        function shareChat() {
-            document.getElementById('shareModal').style.display = 'flex';
-        }
+        function shareChat() { document.getElementById('shareModal').style.display = 'flex'; }
 
         function shareWhatsApp() {
-            var text = "Check out Niranjan AI - My Personal AI Assistant!\n\nhttps://niranjanai.netlify.app\n\nPowered by LLaMA 3 🤖";
-            var url = "https://wa.me/?text=" + encodeURIComponent(text);
-            window.open(url, '_blank');
+            var text = "Check out Niranjan AI!\n\nhttps://niranjanai.netlify.app\n\nPowered by LLaMA 3";
+            window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
         }
 
         function copyShareLink() {
             navigator.clipboard.writeText("https://niranjanai.netlify.app").then(function() {
-                alert('Link copied! Share it with your friends 😊');
+                alert('Link copied!');
             });
             document.getElementById('shareModal').style.display = 'none';
         }
@@ -203,12 +220,12 @@
             printContent += ".label{font-weight:bold;margin-bottom:5px;font-size:0.85rem;}";
             printContent += ".user .label{color:#6c63ff;} .ai .label{color:#e94560;}";
             printContent += "</style></head><body>";
-            printContent += "<h1>🤖 Niranjan AI - Chat History</h1>";
+            printContent += "<h1>Niranjan AI - Chat History</h1>";
             printContent += "<p style='color:#666;font-size:0.85rem;'>Generated on " + new Date().toLocaleString() + "</p><br>";
             chatHistory.forEach(function(msg) {
                 var isUser = msg.role === 'user';
                 printContent += "<div class='message " + (isUser ? 'user' : 'ai') + "'>";
-                printContent += "<div class='label'>" + (isUser ? '👤 You' : '🤖 Niranjan AI') + "</div>";
+                printContent += "<div class='label'>" + (isUser ? 'You' : 'Niranjan AI') + "</div>";
                 printContent += "<div>" + msg.content.replace(/\n/g, '<br>') + "</div></div>";
             });
             printContent += "</body></html>";
@@ -220,8 +237,7 @@
 
         function clearChat() {
             chatHistory = [];
-            documentText = "";
-            imageBase64 = "";
+            documentText = ""; imageBase64 = "";
             totalMessages = 0; totalWords = 0; totalQuestions = 0;
             var container = document.getElementById('chatContainer');
             var typing = document.getElementById('typing');
@@ -232,6 +248,35 @@
             welcome.style.display = 'flex';
             document.getElementById('filePreview').style.display = 'none';
         }
+
+        function togglePlusMenu() {
+            var menu = document.getElementById('plusMenu');
+            var btn = document.getElementById('plusBtn');
+            if (menu.style.display === 'none') {
+                menu.style.display = 'flex';
+                btn.style.background = 'var(--primary)';
+                btn.style.color = 'white';
+            } else {
+                menu.style.display = 'none';
+                btn.style.background = '';
+                btn.style.color = '';
+            }
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        document.addEventListener('click', function(e) {
+            var menu = document.getElementById('plusMenu');
+            var btn = document.getElementById('plusBtn');
+            if (menu && menu.style.display !== 'none' && !menu.contains(e.target) && !btn.contains(e.target)) {
+                menu.style.display = 'none';
+                btn.style.background = '';
+                btn.style.color = '';
+            }
+        });
 
         function isImageRequest(message) {
             var msg = message.toLowerCase();
@@ -247,7 +292,6 @@
                 /generate (?:an? )?image of (.+)/i,
                 /create (?:an? )?image of (.+)/i,
                 /make (?:an? )?image of (.+)/i,
-                /generate (?:an? )?picture of (.+)/i,
                 /draw (.+)/i,
                 /image of (.+)/i,
                 /picture of (.+)/i
@@ -261,8 +305,7 @@
 
         async function generateImage(prompt) {
             var encodedPrompt = encodeURIComponent(prompt);
-            var imageUrl = "https://image.pollinations.ai/prompt/" + encodedPrompt + "?width=512&height=512&nologo=true";
-            return imageUrl;
+            return "https://image.pollinations.ai/prompt/" + encodedPrompt + "?width=512&height=512&nologo=true";
         }
 
         function downloadImage() {
@@ -283,27 +326,16 @@
                 var weatherRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + loc.latitude + '&longitude=' + loc.longitude + '&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&wind_speed_unit=kmh&timezone=auto');
                 var weatherData = await weatherRes.json();
                 var current = weatherData.current;
-                var weatherCodes = {
-                    0:'☀️ Clear sky',1:'🌤️ Mainly clear',2:'⛅ Partly cloudy',3:'☁️ Overcast',
-                    45:'🌫️ Foggy',51:'🌦️ Light drizzle',61:'🌧️ Light rain',63:'🌧️ Rain',
-                    65:'🌧️ Heavy rain',71:'🌨️ Light snow',73:'❄️ Snow',80:'🌦️ Showers',95:'⛈️ Thunderstorm'
-                };
-                var condition = weatherCodes[current.weather_code] || '🌤️ Clear';
-                return 'Weather in ' + loc.name + ', ' + loc.country + ':\n' +
-                       condition + '\nTemperature: ' + current.temperature_2m + '°C\n' +
-                       'Humidity: ' + current.relative_humidity_2m + '%\nWind: ' + current.wind_speed_10m + ' km/h';
+                var weatherCodes = {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',51:'Light drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',80:'Showers',95:'Thunderstorm'};
+                var condition = weatherCodes[current.weather_code] || 'Clear';
+                return 'Weather in ' + loc.name + ', ' + loc.country + ': ' + condition +
+                       ', Temperature: ' + current.temperature_2m + 'C, Humidity: ' + current.relative_humidity_2m + '%, Wind: ' + current.wind_speed_10m + ' kmh';
             } catch(e) { return null; }
         }
 
         function extractCity(message) {
-            var patterns = [
-                /weather\s+(?:in|of|at|for)\s+([a-zA-Z\s]+?)(?:\?|today|tomorrow|now|$)/i,
-                /([a-zA-Z\s]+?)\s+(?:weather|temperature|temp)/i
-            ];
-            for (var i = 0; i < patterns.length; i++) {
-                var match = message.match(patterns[i]);
-                if (match) return match[1].trim();
-            }
+            var patterns = [/weather\s+(?:in|of|at|for)\s+([a-zA-Z\s]+?)(?:\?|today|tomorrow|now|$)/i, /([a-zA-Z\s]+?)\s+(?:weather|temperature|temp)/i];
+            for (var i = 0; i < patterns.length; i++) { var match = message.match(patterns[i]); if (match) return match[1].trim(); }
             return null;
         }
 
@@ -318,20 +350,20 @@
             var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             var recognition = new SpeechRecognition();
             recognition.lang = 'en-US'; recognition.continuous = false; recognition.interimResults = false;
-            recognition.onstart = function() { isListening = true; document.getElementById('voiceBtn').textContent = '🔴'; document.getElementById('voiceBtn').style.background = 'rgba(233,69,96,0.3)'; };
-            recognition.onresult = function(event) { document.getElementById('userInput').value = event.results[0][0].transcript; isListening = false; document.getElementById('voiceBtn').textContent = '🎤'; document.getElementById('voiceBtn').style.background = ''; userSpokeWithMic = true; sendMessage(); };
-            recognition.onerror = function() { isListening = false; document.getElementById('voiceBtn').textContent = '🎤'; document.getElementById('voiceBtn').style.background = ''; };
-            recognition.onend = function() { isListening = false; document.getElementById('voiceBtn').textContent = '🎤'; document.getElementById('voiceBtn').style.background = ''; };
+            recognition.onstart = function() { isListening = true; document.getElementById('voiceBtn').style.background = 'var(--accent)'; document.getElementById('voiceBtn').style.color = 'white'; };
+            recognition.onresult = function(event) { document.getElementById('userInput').value = event.results[0][0].transcript; isListening = false; document.getElementById('voiceBtn').style.background = ''; document.getElementById('voiceBtn').style.color = ''; sendMessage(); };
+            recognition.onerror = function() { isListening = false; document.getElementById('voiceBtn').style.background = ''; document.getElementById('voiceBtn').style.color = ''; };
+            recognition.onend = function() { isListening = false; document.getElementById('voiceBtn').style.background = ''; document.getElementById('voiceBtn').style.color = ''; };
             recognition.start();
         }
 
         function clearFile() { documentText = ""; imageBase64 = ""; document.getElementById('filePreview').style.display = 'none'; document.getElementById('fileInput').value = ''; document.getElementById('imageInput').value = ''; }
-        function showFilePreview(name) { document.getElementById('filePreviewName').textContent = '📎 ' + name; document.getElementById('filePreview').style.display = 'block'; }
+        function showFilePreview(name) { document.getElementById('filePreviewName').textContent = name; document.getElementById('filePreview').style.display = 'block'; }
 
         async function handleFileUpload(event) {
             var file = event.target.files[0]; if (!file) return;
             var formData = new FormData(); formData.append('file', file);
-            addMessage('Uploading document: ' + file.name, true);
+            addMessage('Uploading: ' + file.name, true);
             try {
                 var response = await fetch(API_URL + '/upload', { method: 'POST', body: formData });
                 var data = await response.json();
@@ -343,7 +375,7 @@
         async function handleImageUpload(event) {
             var file = event.target.files[0]; if (!file) return;
             var formData = new FormData(); formData.append('file', file);
-            addMessage('Uploading image: ' + file.name, true);
+            addMessage('Uploading: ' + file.name, true);
             try {
                 var response = await fetch(API_URL + '/upload', { method: 'POST', body: formData });
                 var data = await response.json();
@@ -376,7 +408,7 @@
         function addReaction(btn, emoji) { btn.textContent = emoji; btn.style.background = 'rgba(108,99,255,0.2)'; }
         function handleKey(event) { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }
         function sendSuggestion(text) { document.getElementById('userInput').value = text; sendMessage(); }
-        function copyMessage(text, btn) { navigator.clipboard.writeText(text).then(function() { btn.textContent = '✅'; setTimeout(function() { btn.textContent = '📋'; }, 2000); }); }
+        function copyMessage(text, btn) { navigator.clipboard.writeText(text).then(function() { btn.textContent = '✅'; setTimeout(function() { btn.textContent = 'Copy'; }, 2000); }); }
 
         function addMessage(text, isUser) {
             var welcome = document.getElementById('welcome'); if (welcome) welcome.style.display = 'none';
@@ -386,7 +418,7 @@
                 var header = document.createElement('div'); header.className = 'message-header';
                 var sender = document.createElement('div'); sender.className = 'sender'; sender.textContent = 'Niranjan AI';
                 var actions = document.createElement('div'); actions.className = 'message-actions';
-                var copyBtn = document.createElement('button'); copyBtn.className = 'copy-btn'; copyBtn.textContent = '📋';
+                var copyBtn = document.createElement('button'); copyBtn.className = 'copy-btn'; copyBtn.textContent = 'Copy';
                 copyBtn.onclick = function() { copyMessage(text, copyBtn); };
                 ['👍','❤️','😂','😮','😢'].forEach(function(emoji) {
                     var btn = document.createElement('button'); btn.className = 'reaction-btn'; btn.textContent = emoji;
@@ -407,17 +439,13 @@
             var sender = document.createElement('div'); sender.className = 'sender'; sender.textContent = 'Niranjan AI';
             header.appendChild(sender); div.appendChild(header);
             var textNode = document.createElement('div'); textNode.className = 'message-text';
-            textNode.textContent = '🎨 Generated image for: "' + prompt + '"';
+            textNode.textContent = 'Generated image for: "' + prompt + '"';
             div.appendChild(textNode);
             var img = document.createElement('img');
             img.src = imageUrl;
             img.style.cssText = 'width:100%;max-width:300px;border-radius:12px;margin-top:10px;cursor:pointer;display:block;';
-            img.onclick = function() {
-                currentGeneratedImageUrl = imageUrl;
-                document.getElementById('generatedImage').src = imageUrl;
-                document.getElementById('imageModal').style.display = 'flex';
-            };
-            img.onerror = function() { textNode.textContent = '❌ Image generation failed. Try a different prompt!'; };
+            img.onclick = function() { currentGeneratedImageUrl = imageUrl; document.getElementById('generatedImage').src = imageUrl; document.getElementById('imageModal').style.display = 'flex'; };
+            img.onerror = function() { textNode.textContent = 'Image generation failed. Try a different prompt!'; };
             div.appendChild(img);
             container.insertBefore(div, typing); container.scrollTop = container.scrollHeight;
             totalMessages++;
@@ -430,7 +458,7 @@
             var header = document.createElement('div'); header.className = 'message-header';
             var sender = document.createElement('div'); sender.className = 'sender'; sender.textContent = 'Niranjan AI';
             var actions = document.createElement('div'); actions.className = 'message-actions';
-            var copyBtn = document.createElement('button'); copyBtn.className = 'copy-btn'; copyBtn.textContent = '📋';
+            var copyBtn = document.createElement('button'); copyBtn.className = 'copy-btn'; copyBtn.textContent = 'Copy';
             copyBtn.onclick = function() { copyMessage(text, copyBtn); };
             ['👍','❤️','😂','😮','😢'].forEach(function(emoji) {
                 var btn = document.createElement('button'); btn.className = 'reaction-btn'; btn.textContent = emoji;
@@ -441,11 +469,7 @@
             container.insertBefore(div, typing);
             var i = 0;
             function typeWriter() {
-                if (i < text.length) {
-                    textNode.textContent += text.charAt(i); i++;
-                    container.scrollTop = container.scrollHeight;
-                    setTimeout(typeWriter, 8);
-                }
+                if (i < text.length) { textNode.textContent += text.charAt(i); i++; container.scrollTop = container.scrollHeight; setTimeout(typeWriter, 8); }
             }
             typeWriter();
             totalMessages++; totalWords += text.split(' ').length;
@@ -457,6 +481,7 @@
             if (!text && !imageBase64) return;
             userSpokeWithMic = false;
             input.value = '';
+            input.style.height = 'auto';
             document.getElementById('sendBtn').disabled = true;
             if (text) addMessage(text, true);
             chatHistory.push({ role: 'user', content: text || 'What is in this image?' });
@@ -464,18 +489,16 @@
             document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
 
             try {
-                // Check if image generation request
                 if (isImageRequest(text)) {
                     var prompt = extractImagePrompt(text);
                     var imageUrl = await generateImage(prompt);
                     document.getElementById('typing').style.display = 'none';
                     addImageMessage(imageUrl, prompt);
-                    chatHistory.push({ role: 'assistant', content: 'I generated an image for: ' + prompt });
+                    chatHistory.push({ role: 'assistant', content: 'Generated image for: ' + prompt });
                     document.getElementById('sendBtn').disabled = false;
                     return;
                 }
 
-                // Check if weather query
                 var weatherContext = "";
                 if (isWeatherQuery(text)) {
                     var city = extractCity(text) || "Indore";
@@ -514,4 +537,3 @@
     </script>
 </body>
 </html>
-
