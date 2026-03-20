@@ -24,6 +24,7 @@ app.add_middleware(
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 client = Groq(api_key=GROQ_API_KEY)
 
 personality_prompts = {
@@ -116,7 +117,23 @@ def search_wikipedia(query):
     except:
         pass
     return ""
-
+def generate_image_gemini(prompt):
+    try:
+        import base64
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key={GEMINI_API_KEY}"
+        payload = {
+            "instances": [{"prompt": prompt}],
+            "parameters": {"sampleCount": 1}
+        }
+        response = requests.post(url, json=payload, timeout=30)
+        data = response.json()
+        if "predictions" in data:
+            image_data = data["predictions"][0]["bytesBase64Encoded"]
+            return image_data
+        return None
+    except Exception as e:
+        print(f"Image generation error: {e}")
+        return None
 def search_all(query):
     results = ""
     news = search_newsapi(query)
@@ -145,7 +162,28 @@ def needs_web_search(message):
 @app.get("/")
 def home():
     return {"message": "U&Me AI is running!"}
+class ImageInput(BaseModel):
+    prompt: str
 
+@app.post("/generate-image")
+def generate_image_endpoint(input: ImageInput):
+    try:
+        image_data = generate_image_gemini(input.prompt)
+        if image_data:
+            return {
+                "status": "success",
+                "image_base64": image_data
+            }
+        else:
+            return {
+                "status": "error",
+                "message": "Image generation failed"
+            }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     try:

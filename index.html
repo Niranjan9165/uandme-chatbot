@@ -301,9 +301,22 @@
             return message;
         }
 
-        async function generateImage(prompt) {
-            return "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=1024&height=1024&nologo=true&model=flux&seed=" + Math.floor(Math.random()*999999)+"";
+       async function generateImage(prompt) {
+    try {
+        var response = await fetch(API_URL + '/generate-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: prompt })
+        });
+        var data = await response.json();
+        if (data.status === 'success') {
+            return 'data:image/jpeg;base64,' + data.image_base64;
         }
+        return null;
+    } catch(e) {
+        return null;
+    }
+}
 
         function downloadImage() {
             if (!currentGeneratedImageUrl) return;
