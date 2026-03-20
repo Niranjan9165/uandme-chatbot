@@ -121,7 +121,7 @@ def search_wikipedia(query):
 
 def generate_image_gemini(prompt):
     try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_API_KEY}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key={GEMINI_API_KEY}"
         payload = {
             "contents": [{"parts": [{"text": "Generate an image of: " + prompt}]}],
             "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]}
