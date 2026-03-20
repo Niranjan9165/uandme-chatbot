@@ -12,11 +12,9 @@ load_dotenv()
 
 app = FastAPI(title="U&Me AI")
 
-origins = ["*"]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,6 +40,9 @@ class ChatInput(BaseModel):
     image_base64: str = ""
     language: str = "English"
     personality: str = "helpful"
+
+class ImageInput(BaseModel):
+    prompt: str
 
 def extract_text_from_pdf(file_bytes):
     try:
@@ -117,23 +118,26 @@ def search_wikipedia(query):
     except:
         pass
     return ""
+
 def generate_image_gemini(prompt):
     try:
-        import base64
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key={GEMINI_API_KEY}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_API_KEY}"
         payload = {
-            "instances": [{"prompt": prompt}],
-            "parameters": {"sampleCount": 1}
+            "contents": [{"parts": [{"text": "Generate an image of: " + prompt}]}],
+            "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]}
         }
-        response = requests.post(url, json=payload, timeout=30)
+        response = requests.post(url, json=payload, timeout=60)
         data = response.json()
-        if "predictions" in data:
-            image_data = data["predictions"][0]["bytesBase64Encoded"]
-            return image_data
+        print(f"Gemini response: {data}")
+        if "candidates" in data:
+            for part in data["candidates"][0]["content"]["parts"]:
+                if "inlineData" in part:
+                    return part["inlineData"]["data"]
         return None
     except Exception as e:
         print(f"Image generation error: {e}")
         return None
+
 def search_all(query):
     results = ""
     news = search_newsapi(query)
@@ -162,12 +166,12 @@ def needs_web_search(message):
 @app.get("/")
 def home():
     return {"message": "U&Me AI is running!"}
-class ImageInput(BaseModel):
-    prompt: str
 
 @app.post("/generate-image")
 def generate_image_endpoint(input: ImageInput):
     try:
+        print(f"Generating image for: {input.prompt}")
+        print(f"GEMINI_API_KEY exists: {bool(GEMINI_API_KEY)}")
         image_data = generate_image_gemini(input.prompt)
         if image_data:
             return {
@@ -184,6 +188,7 @@ def generate_image_endpoint(input: ImageInput):
             "status": "error",
             "message": str(e)
         }
+
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     try:
