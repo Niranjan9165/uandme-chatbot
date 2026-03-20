@@ -470,10 +470,18 @@ async function switchCamera() {
             textNode.textContent = 'Generated image for: "' + prompt + '"';
             div.appendChild(textNode);
             var img = document.createElement('img');
-            img.src = imageUrl;
+            textNode.textContent = 'Generating image... please wait 10-15 seconds...';
+img.src = imageUrl;
+img.onload = function() { textNode.textContent = 'Generated image for: "' + prompt + '"'; setTimeout(scrollToBottom, 50); };
             img.style.cssText = 'width:100%;max-width:300px;border-radius:12px;margin-top:10px;cursor:pointer;display:block;';
             img.onclick = function() { currentGeneratedImageUrl = imageUrl; document.getElementById('generatedImage').src = imageUrl; document.getElementById('imageModal').style.display = 'flex'; };
-            img.onerror = function() { textNode.textContent = 'Image generation failed. Try a different prompt!'; };
+            img.onerror = function() {
+    setTimeout(function() {
+        var newUrl = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=512&height=512&nologo=true&seed=" + Math.floor(Math.random()*999999);
+        img.src = newUrl;
+        img.onerror = function() { textNode.textContent = 'Image generation failed. Try a different prompt!'; };
+    }, 3000);
+};
             img.onload = function() { setTimeout(scrollToBottom, 50); };
             div.appendChild(img);
             container.insertBefore(div, typing);
