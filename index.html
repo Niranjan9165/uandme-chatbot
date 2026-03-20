@@ -68,16 +68,20 @@
         </div>
 
         <div class="modal" id="cameraModal" style="display:none">
-            <div class="modal-content">
-                <h3>Take a Photo</h3>
-                <video id="cameraVideo" autoplay></video>
-                <canvas id="cameraCanvas" style="display:none"></canvas>
-                <div class="modal-buttons">
-                    <button onclick="capturePhoto()">Capture</button>
-                    <button onclick="closeCamera()" class="cancel-btn">Cancel</button>
-                </div>
-            </div>
+    <div class="modal-content">
+        <h3>Take a Photo</h3>
+        <video id="cameraVideo" autoplay playsinline></video>
+        <canvas id="cameraCanvas" style="display:none"></canvas>
+        <div class="modal-buttons">
+            <button onclick="capturePhoto()">Capture</button>
+            <button onclick="switchCamera()" class="cancel-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px;"><path d="M20 5h-3.17L15 3H9L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
+                Flip
+            </button>
+            <button onclick="closeCamera()" class="cancel-btn">Cancel</button>
         </div>
+    </div>
+</div>
 
         <div class="modal" id="imageModal" style="display:none">
             <div class="modal-content" style="text-align:center;">
@@ -372,11 +376,46 @@
             } catch (error) { addMessageWithAnimation('Error uploading image!'); }
         }
 
-        async function openCamera() {
-            document.getElementById('cameraModal').style.display = 'flex';
-            try { var stream = await navigator.mediaDevices.getUserMedia({ video: true }); document.getElementById('cameraVideo').srcObject = stream; }
-            catch (error) { alert('Cannot access camera!'); closeCamera(); }
+      var currentCameraFacing = 'environment'; // back camera by default
+
+async function openCamera() {
+    document.getElementById('cameraModal').style.display = 'flex';
+    await startCamera();
+}
+
+async function startCamera() {
+    try {
+        // Stop existing stream
+        var video = document.getElementById('cameraVideo');
+        if (video.srcObject) {
+            video.srcObject.getTracks().forEach(function(track) { track.stop(); });
         }
+        var constraints = {
+            video: {
+                facingMode: currentCameraFacing,
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            }
+        };
+        var stream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = stream;
+    } catch (error) {
+        // Fallback to any camera
+        try {
+            var stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            document.getElementById('cameraVideo').srcObject = stream;
+        } catch(e) {
+            alert('Cannot access camera!');
+            closeCamera();
+        }
+    }
+}
+
+async function switchCamera() {
+    currentCameraFacing = currentCameraFacing === 'environment' ? 'user' : 'environment';
+    await startCamera();
+}
+
 
         function closeCamera() {
             var video = document.getElementById('cameraVideo');
