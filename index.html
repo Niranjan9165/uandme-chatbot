@@ -2,13 +2,13 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Niranjan AI</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="mainApp" style="display:flex; flex-direction:column; height:100vh;">
+    <div id="mainApp">
 
         <div class="header">
             <div class="header-left">
@@ -32,12 +32,12 @@
                     <option value="funny">Funny</option>
                     <option value="teacher">Teacher</option>
                 </select>
-                <button onclick="showStats()" class="header-btn" title="Statistics">Stats</button>
-                <button onclick="saveChat()" class="header-btn" title="Save Chat">Save</button>
-                <button onclick="shareChat()" class="header-btn" title="Share Chat">Share</button>
-                <button onclick="printChat()" class="header-btn" title="Print Chat">Print</button>
-                <button onclick="clearChat()" class="header-btn" title="Clear Chat">Clear</button>
-                <button onclick="toggleTheme()" class="header-btn" id="themeBtn" title="Toggle Theme">Light</button>
+                <button onclick="showStats()" class="header-btn">Stats</button>
+                <button onclick="saveChat()" class="header-btn">Save</button>
+                <button onclick="shareChat()" class="header-btn">Share</button>
+                <button onclick="printChat()" class="header-btn">Print</button>
+                <button onclick="clearChat()" class="header-btn">Clear</button>
+                <button onclick="toggleTheme()" class="header-btn" id="themeBtn">Light</button>
                 <div class="developer">Developed by Niranjan Choudhary</div>
             </div>
         </div>
@@ -140,7 +140,7 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                 </button>
                 <textarea id="userInput" placeholder="Message Niranjan AI..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-                <button onclick="toggleVoiceInput()" class="voice-btn" id="voiceBtn" title="Voice Input">
+                <button onclick="toggleVoiceInput()" class="voice-btn" id="voiceBtn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v6a2 2 0 0 0 4 0V5a2 2 0 0 0-2-2zm7 8a1 1 0 0 1 1 1 8 8 0 0 1-7 7.94V21h2a1 1 0 0 1 0 2H9a1 1 0 0 1 0-2h2v-1.06A8 8 0 0 1 4 12a1 1 0 0 1 2 0 6 6 0 0 0 12 0 1 1 0 0 1 1-1z"/></svg>
                 </button>
                 <button onclick="sendMessage()" id="sendBtn">
@@ -163,8 +163,29 @@
         var totalWords = 0;
         var totalQuestions = 0;
         var isListening = false;
-        var userSpokeWithMic = false;
         var currentGeneratedImageUrl = "";
+
+        // Fix mobile height
+        function setAppHeight() {
+            var container = document.getElementById('chatContainer');
+            var header = document.querySelector('.header');
+            var inputWrapper = document.querySelector('.input-wrapper');
+            var filePreview = document.getElementById('filePreview');
+            var headerH = header ? header.offsetHeight : 0;
+            var inputH = inputWrapper ? inputWrapper.offsetHeight : 0;
+            var fileH = (filePreview && filePreview.style.display !== 'none') ? filePreview.offsetHeight : 0;
+            container.style.height = (window.innerHeight - headerH - inputH - fileH) + 'px';
+        }
+
+        window.addEventListener('resize', setAppHeight);
+        window.addEventListener('orientationchange', function() { setTimeout(setAppHeight, 300); });
+        document.addEventListener('DOMContentLoaded', setAppHeight);
+        setTimeout(setAppHeight, 100);
+
+        function scrollToBottom() {
+            var container = document.getElementById('chatContainer');
+            container.scrollTop = container.scrollHeight;
+        }
 
         function toggleTheme() {
             isDark = !isDark;
@@ -191,9 +212,7 @@
             var blob = new Blob([text], { type: 'text/plain' });
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
-            a.href = url;
-            a.download = 'niranjan-ai-chat.txt';
-            a.click();
+            a.href = url; a.download = 'niranjan-ai-chat.txt'; a.click();
         }
 
         function shareChat() { document.getElementById('shareModal').style.display = 'flex'; }
@@ -204,29 +223,17 @@
         }
 
         function copyShareLink() {
-            navigator.clipboard.writeText("https://niranjanai.netlify.app").then(function() {
-                alert('Link copied!');
-            });
+            navigator.clipboard.writeText("https://niranjanai.netlify.app").then(function() { alert('Link copied!'); });
             document.getElementById('shareModal').style.display = 'none';
         }
 
         function printChat() {
             var printContent = "<html><head><title>Niranjan AI Chat</title>";
-            printContent += "<style>body{font-family:Arial,sans-serif;padding:20px;max-width:800px;margin:0 auto;}";
-            printContent += "h1{color:#6c63ff;border-bottom:2px solid #6c63ff;padding-bottom:10px;}";
-            printContent += ".message{margin:15px 0;padding:12px;border-radius:8px;}";
-            printContent += ".user{background:#f0f0ff;border-left:4px solid #6c63ff;}";
-            printContent += ".ai{background:#f9f9f9;border-left:4px solid #e94560;}";
-            printContent += ".label{font-weight:bold;margin-bottom:5px;font-size:0.85rem;}";
-            printContent += ".user .label{color:#6c63ff;} .ai .label{color:#e94560;}";
-            printContent += "</style></head><body>";
-            printContent += "<h1>Niranjan AI - Chat History</h1>";
-            printContent += "<p style='color:#666;font-size:0.85rem;'>Generated on " + new Date().toLocaleString() + "</p><br>";
+            printContent += "<style>body{font-family:Arial,sans-serif;padding:20px;max-width:800px;margin:0 auto;}h1{color:#6c63ff;border-bottom:2px solid #6c63ff;padding-bottom:10px;}.message{margin:15px 0;padding:12px;border-radius:8px;}.user{background:#f0f0ff;border-left:4px solid #6c63ff;}.ai{background:#f9f9f9;border-left:4px solid #e94560;}.label{font-weight:bold;margin-bottom:5px;font-size:0.85rem;}.user .label{color:#6c63ff;}.ai .label{color:#e94560;}</style></head><body>";
+            printContent += "<h1>Niranjan AI - Chat History</h1><p style='color:#666;font-size:0.85rem;'>Generated on " + new Date().toLocaleString() + "</p><br>";
             chatHistory.forEach(function(msg) {
                 var isUser = msg.role === 'user';
-                printContent += "<div class='message " + (isUser ? 'user' : 'ai') + "'>";
-                printContent += "<div class='label'>" + (isUser ? 'You' : 'Niranjan AI') + "</div>";
-                printContent += "<div>" + msg.content.replace(/\n/g, '<br>') + "</div></div>";
+                printContent += "<div class='message " + (isUser ? 'user' : 'ai') + "'><div class='label'>" + (isUser ? 'You' : 'Niranjan AI') + "</div><div>" + msg.content.replace(/\n/g, '<br>') + "</div></div>";
             });
             printContent += "</body></html>";
             var printWindow = window.open('', '_blank');
@@ -236,8 +243,7 @@
         }
 
         function clearChat() {
-            chatHistory = [];
-            documentText = ""; imageBase64 = "";
+            chatHistory = []; documentText = ""; imageBase64 = "";
             totalMessages = 0; totalWords = 0; totalQuestions = 0;
             var container = document.getElementById('chatContainer');
             var typing = document.getElementById('typing');
@@ -247,6 +253,7 @@
             container.appendChild(typing);
             welcome.style.display = 'flex';
             document.getElementById('filePreview').style.display = 'none';
+            setAppHeight();
         }
 
         function togglePlusMenu() {
@@ -266,6 +273,7 @@
         function autoResize(textarea) {
             textarea.style.height = 'auto';
             textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+            setAppHeight();
         }
 
         document.addEventListener('click', function(e) {
@@ -280,41 +288,23 @@
 
         function isImageRequest(message) {
             var msg = message.toLowerCase();
-            return msg.includes('generate image') || msg.includes('create image') ||
-                   msg.includes('make image') || msg.includes('draw') ||
-                   msg.includes('generate a picture') || msg.includes('create a picture') ||
-                   msg.includes('generate an image') || msg.includes('image of') ||
-                   msg.includes('picture of');
+            return msg.includes('generate image') || msg.includes('create image') || msg.includes('make image') || msg.includes('draw') || msg.includes('generate an image') || msg.includes('image of') || msg.includes('picture of');
         }
 
         function extractImagePrompt(message) {
-            var patterns = [
-                /generate (?:an? )?image of (.+)/i,
-                /create (?:an? )?image of (.+)/i,
-                /make (?:an? )?image of (.+)/i,
-                /draw (.+)/i,
-                /image of (.+)/i,
-                /picture of (.+)/i
-            ];
-            for (var i = 0; i < patterns.length; i++) {
-                var match = message.match(patterns[i]);
-                if (match) return match[1].trim();
-            }
+            var patterns = [/generate (?:an? )?image of (.+)/i, /create (?:an? )?image of (.+)/i, /draw (.+)/i, /image of (.+)/i, /picture of (.+)/i];
+            for (var i = 0; i < patterns.length; i++) { var match = message.match(patterns[i]); if (match) return match[1].trim(); }
             return message;
         }
 
         async function generateImage(prompt) {
-            var encodedPrompt = encodeURIComponent(prompt);
-            return "https://image.pollinations.ai/prompt/" + encodedPrompt + "?width=512&height=512&nologo=true";
+            return "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=512&height=512&nologo=true";
         }
 
         function downloadImage() {
             if (!currentGeneratedImageUrl) return;
             var a = document.createElement('a');
-            a.href = currentGeneratedImageUrl;
-            a.download = 'niranjan-ai-image.jpg';
-            a.target = '_blank';
-            a.click();
+            a.href = currentGeneratedImageUrl; a.download = 'niranjan-ai-image.jpg'; a.target = '_blank'; a.click();
         }
 
         async function getWeather(city) {
@@ -327,9 +317,7 @@
                 var weatherData = await weatherRes.json();
                 var current = weatherData.current;
                 var weatherCodes = {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',51:'Light drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',80:'Showers',95:'Thunderstorm'};
-                var condition = weatherCodes[current.weather_code] || 'Clear';
-                return 'Weather in ' + loc.name + ', ' + loc.country + ': ' + condition +
-                       ', Temperature: ' + current.temperature_2m + 'C, Humidity: ' + current.relative_humidity_2m + '%, Wind: ' + current.wind_speed_10m + ' kmh';
+                return 'Weather in ' + loc.name + ': ' + (weatherCodes[current.weather_code] || 'Clear') + ', ' + current.temperature_2m + '°C, Humidity: ' + current.relative_humidity_2m + '%, Wind: ' + current.wind_speed_10m + ' km/h';
             } catch(e) { return null; }
         }
 
@@ -357,8 +345,8 @@
             recognition.start();
         }
 
-        function clearFile() { documentText = ""; imageBase64 = ""; document.getElementById('filePreview').style.display = 'none'; document.getElementById('fileInput').value = ''; document.getElementById('imageInput').value = ''; }
-        function showFilePreview(name) { document.getElementById('filePreviewName').textContent = name; document.getElementById('filePreview').style.display = 'block'; }
+        function clearFile() { documentText = ""; imageBase64 = ""; document.getElementById('filePreview').style.display = 'none'; document.getElementById('fileInput').value = ''; document.getElementById('imageInput').value = ''; setAppHeight(); }
+        function showFilePreview(name) { document.getElementById('filePreviewName').textContent = name; document.getElementById('filePreview').style.display = 'block'; setAppHeight(); }
 
         async function handleFileUpload(event) {
             var file = event.target.files[0]; if (!file) return;
@@ -427,7 +415,8 @@
                 actions.appendChild(copyBtn); header.appendChild(sender); header.appendChild(actions); div.appendChild(header);
             }
             var textNode = document.createElement('div'); textNode.className = 'message-text'; textNode.textContent = text;
-            div.appendChild(textNode); container.insertBefore(div, typing); container.scrollTop = container.scrollHeight;
+            div.appendChild(textNode); container.insertBefore(div, typing);
+            setTimeout(scrollToBottom, 50);
             totalMessages++; totalWords += text.split(' ').length; if (text.includes('?')) totalQuestions++;
         }
 
@@ -446,8 +435,10 @@
             img.style.cssText = 'width:100%;max-width:300px;border-radius:12px;margin-top:10px;cursor:pointer;display:block;';
             img.onclick = function() { currentGeneratedImageUrl = imageUrl; document.getElementById('generatedImage').src = imageUrl; document.getElementById('imageModal').style.display = 'flex'; };
             img.onerror = function() { textNode.textContent = 'Image generation failed. Try a different prompt!'; };
+            img.onload = function() { setTimeout(scrollToBottom, 50); };
             div.appendChild(img);
-            container.insertBefore(div, typing); container.scrollTop = container.scrollHeight;
+            container.insertBefore(div, typing);
+            setTimeout(scrollToBottom, 50);
             totalMessages++;
         }
 
@@ -467,9 +458,16 @@
             actions.appendChild(copyBtn); header.appendChild(sender); header.appendChild(actions); div.appendChild(header);
             var textNode = document.createElement('div'); textNode.className = 'message-text'; div.appendChild(textNode);
             container.insertBefore(div, typing);
+            setTimeout(scrollToBottom, 50);
             var i = 0;
             function typeWriter() {
-                if (i < text.length) { textNode.textContent += text.charAt(i); i++; container.scrollTop = container.scrollHeight; setTimeout(typeWriter, 8); }
+                if (i < text.length) {
+                    textNode.textContent += text.charAt(i); i++;
+                    if (i % 10 === 0) scrollToBottom();
+                    setTimeout(typeWriter, 8);
+                } else {
+                    scrollToBottom();
+                }
             }
             typeWriter();
             totalMessages++; totalWords += text.split(' ').length;
@@ -479,14 +477,14 @@
             var input = document.getElementById('userInput');
             var text = input.value.trim();
             if (!text && !imageBase64) return;
-            userSpokeWithMic = false;
             input.value = '';
             input.style.height = 'auto';
+            setAppHeight();
             document.getElementById('sendBtn').disabled = true;
             if (text) addMessage(text, true);
             chatHistory.push({ role: 'user', content: text || 'What is in this image?' });
             document.getElementById('typing').style.display = 'block';
-            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+            setTimeout(scrollToBottom, 50);
 
             try {
                 if (isImageRequest(text)) {
@@ -526,7 +524,7 @@
                 document.getElementById('typing').style.display = 'none';
                 addMessageWithAnimation(data.reply);
                 chatHistory.push({ role: 'assistant', content: data.reply });
-                if (imageBase64) { imageBase64 = ""; document.getElementById('filePreview').style.display = 'none'; }
+                if (imageBase64) { imageBase64 = ""; document.getElementById('filePreview').style.display = 'none'; setAppHeight(); }
 
             } catch (error) {
                 document.getElementById('typing').style.display = 'none';
