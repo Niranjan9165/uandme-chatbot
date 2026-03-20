@@ -302,7 +302,7 @@
         }
 
         async function generateImage(prompt) {
-            return "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=512&height=512&nologo=true";
+            return "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=1024&height=1024&nologo=true&model=flux&seed=" + Math.floor(Math.random()*999999)+"";
         }
 
         function downloadImage() {
