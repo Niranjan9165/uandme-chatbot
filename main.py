@@ -123,16 +123,21 @@ def generate_image_gemini(prompt):
     try:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key={GEMINI_API_KEY}"
         payload = {
-            "contents": [{"parts": [{"text": "Generate an image of: " + prompt}]}],
-            "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]}
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "responseModalities": ["IMAGE", "TEXT"]
+            }
         }
         response = requests.post(url, json=payload, timeout=60)
         data = response.json()
-        print(f"Gemini response: {data}")
+        print(f"Gemini response keys: {list(data.keys())}")
+        print(f"Gemini full response: {str(data)[:500]}")
         if "candidates" in data:
             for part in data["candidates"][0]["content"]["parts"]:
                 if "inlineData" in part:
                     return part["inlineData"]["data"]
+                elif "inline_data" in part:
+                    return part["inline_data"]["data"]
         return None
     except Exception as e:
         print(f"Image generation error: {e}")
