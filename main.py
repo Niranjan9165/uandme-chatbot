@@ -22,7 +22,6 @@ app.add_middleware(
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 client = Groq(api_key=GROQ_API_KEY)
 
 personality_prompts = {
@@ -119,25 +118,30 @@ def search_wikipedia(query):
         pass
     return ""
 
-def generate_image_gemini(prompt):
+def generate_image_free(prompt):
     try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key={GEMINI_API_KEY}"
-        payload = {
-            "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {
-                "responseModalities": ["IMAGE", "TEXT"]
-            }
-        }
-        response = requests.post(url, json=payload, timeout=60)
-        data = response.json()
-        print(f"Gemini response keys: {list(data.keys())}")
-        print(f"Gemini full response: {str(data)[:500]}")
-        if "candidates" in data:
-            for part in data["candidates"][0]["content"]["parts"]:
-                if "inlineData" in part:
-                    return part["inlineData"]["data"]
-                elif "inline_data" in part:
-                    return part["inline_data"]["data"]
+        # Try Hugging Face free inference - no API key needed!
+        models = [
+            "stabilityai/stable-diffusion-2-1",
+            "runwayml/stable-diffusion-v1-5",
+            "CompVis/stable-diffusion-v1-4"
+        ]
+        for model in models:
+            try:
+                api_url = f"https://api-inference.huggingface.co/models/{model}"
+                headers = {"Content-Type": "application/json"}
+                payload = {"inputs": prompt, "options": {"wait_for_model": True}}
+                response = requests.post(api_url, headers=headers, json=payload, timeout=60)
+                print(f"HuggingFace {model} status: {response.status_code}")
+                if response.status_code == 200 and response.content:
+                    content_type = response.headers.get("content-type", "")
+                    if "image" in content_type:
+                        image_base64 = base64.b64encode(response.content).decode("utf-8")
+                        print(f"Image generated successfully with {model}!")
+                        return image_base64
+            except Exception as e:
+                print(f"Model {model} failed: {e}")
+                continue
         return None
     except Exception as e:
         print(f"Image generation error: {e}")
@@ -176,8 +180,7 @@ def home():
 def generate_image_endpoint(input: ImageInput):
     try:
         print(f"Generating image for: {input.prompt}")
-        print(f"GEMINI_API_KEY exists: {bool(GEMINI_API_KEY)}")
-        image_data = generate_image_gemini(input.prompt)
+        image_data = generate_image_free(input.prompt)
         if image_data:
             return {
                 "status": "success",
