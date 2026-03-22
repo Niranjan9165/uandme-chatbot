@@ -40,9 +40,6 @@ class ChatInput(BaseModel):
     language: str = "English"
     personality: str = "helpful"
 
-class ImageInput(BaseModel):
-    prompt: str
-
 def extract_text_from_pdf(file_bytes):
     try:
         import PyPDF2
@@ -118,35 +115,6 @@ def search_wikipedia(query):
         pass
     return ""
 
-def generate_image_free(prompt):
-    try:
-        # Try Hugging Face free inference - no API key needed!
-        models = [
-            "stabilityai/stable-diffusion-2-1",
-            "runwayml/stable-diffusion-v1-5",
-            "CompVis/stable-diffusion-v1-4"
-        ]
-        for model in models:
-            try:
-                api_url = f"https://api-inference.huggingface.co/models/{model}"
-                headers = {"Content-Type": "application/json"}
-                payload = {"inputs": prompt, "options": {"wait_for_model": True}}
-                response = requests.post(api_url, headers=headers, json=payload, timeout=60)
-                print(f"HuggingFace {model} status: {response.status_code}")
-                if response.status_code == 200 and response.content:
-                    content_type = response.headers.get("content-type", "")
-                    if "image" in content_type:
-                        image_base64 = base64.b64encode(response.content).decode("utf-8")
-                        print(f"Image generated successfully with {model}!")
-                        return image_base64
-            except Exception as e:
-                print(f"Model {model} failed: {e}")
-                continue
-        return None
-    except Exception as e:
-        print(f"Image generation error: {e}")
-        return None
-
 def search_all(query):
     results = ""
     news = search_newsapi(query)
@@ -175,27 +143,6 @@ def needs_web_search(message):
 @app.get("/")
 def home():
     return {"message": "U&Me AI is running!"}
-
-@app.post("/generate-image")
-def generate_image_endpoint(input: ImageInput):
-    try:
-        print(f"Generating image for: {input.prompt}")
-        image_data = generate_image_free(input.prompt)
-        if image_data:
-            return {
-                "status": "success",
-                "image_base64": image_data
-            }
-        else:
-            return {
-                "status": "error",
-                "message": "Image generation failed"
-            }
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):

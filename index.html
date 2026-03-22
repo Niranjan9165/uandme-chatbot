@@ -68,28 +68,17 @@
         </div>
 
         <div class="modal" id="cameraModal" style="display:none">
-    <div class="modal-content">
-        <h3>Take a Photo</h3>
-        <video id="cameraVideo" autoplay playsinline></video>
-        <canvas id="cameraCanvas" style="display:none"></canvas>
-        <div class="modal-buttons">
-            <button onclick="capturePhoto()">Capture</button>
-            <button onclick="switchCamera()" class="cancel-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px;"><path d="M20 5h-3.17L15 3H9L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
-                Flip
-            </button>
-            <button onclick="closeCamera()" class="cancel-btn">Cancel</button>
-        </div>
-    </div>
-</div>
-
-        <div class="modal" id="imageModal" style="display:none">
-            <div class="modal-content" style="text-align:center;">
-                <h3>Generated Image</h3>
-                <img id="generatedImage" style="width:100%;border-radius:12px;margin:12px 0;" />
-                <div style="display:flex;gap:10px;margin-top:8px;">
-                    <button onclick="downloadImage()" style="flex:1;">Download</button>
-                    <button onclick="document.getElementById('imageModal').style.display='none'" class="cancel-btn" style="flex:1;">Close</button>
+            <div class="modal-content">
+                <h3>Take a Photo</h3>
+                <video id="cameraVideo" autoplay playsinline></video>
+                <canvas id="cameraCanvas" style="display:none"></canvas>
+                <div class="modal-buttons">
+                    <button onclick="capturePhoto()">Capture</button>
+                    <button onclick="switchCamera()" class="cancel-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px;"><path d="M20 5h-3.17L15 3H9L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
+                        Flip
+                    </button>
+                    <button onclick="closeCamera()" class="cancel-btn">Cancel</button>
                 </div>
             </div>
         </div>
@@ -104,7 +93,7 @@
                     <div class="suggestion" onclick="sendSuggestion('Write a Python hello world program')">Write code</div>
                     <div class="suggestion" onclick="sendSuggestion('Translate Hello to Hindi')">Translate language</div>
                     <div class="suggestion" onclick="sendSuggestion('What is the weather in Indore today?')">Weather check</div>
-                    <div class="suggestion" onclick="sendSuggestion('Generate an image of a beautiful sunset')">Generate image</div>
+                    <div class="suggestion" onclick="sendSuggestion('Solve: 25 x 48 + 100')">Solve math</div>
                 </div>
             </div>
             <div class="message ai-message typing" id="typing">
@@ -167,9 +156,7 @@
         var totalWords = 0;
         var totalQuestions = 0;
         var isListening = false;
-        var currentGeneratedImageUrl = "";
 
-        // Fix mobile height
         function setAppHeight() {
             var container = document.getElementById('chatContainer');
             var header = document.querySelector('.header');
@@ -222,12 +209,12 @@
         function shareChat() { document.getElementById('shareModal').style.display = 'flex'; }
 
         function shareWhatsApp() {
-            var text = "Check out Niranjan AI!\n\nhttps://niranjanai.netlify.app\n\nPowered by LLaMA 3";
+            var text = "Check out Niranjan AI!\n\nhttps://niranjanai.vercel.app\n\nPowered by LLaMA 3";
             window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
         }
 
         function copyShareLink() {
-            navigator.clipboard.writeText("https://niranjanai.netlify.app").then(function() { alert('Link copied!'); });
+            navigator.clipboard.writeText("https://niranjanai.vercel.app").then(function() { alert('Link copied!'); });
             document.getElementById('shareModal').style.display = 'none';
         }
 
@@ -289,40 +276,6 @@
                 btn.style.color = '';
             }
         });
-
-        function isImageRequest(message) {
-            var msg = message.toLowerCase();
-            return msg.includes('generate image') || msg.includes('create image') || msg.includes('make image') || msg.includes('draw') || msg.includes('generate an image') || msg.includes('image of') || msg.includes('picture of');
-        }
-
-        function extractImagePrompt(message) {
-            var patterns = [/generate (?:an? )?image of (.+)/i, /create (?:an? )?image of (.+)/i, /draw (.+)/i, /image of (.+)/i, /picture of (.+)/i];
-            for (var i = 0; i < patterns.length; i++) { var match = message.match(patterns[i]); if (match) return match[1].trim(); }
-            return message;
-        }
-
-       async function generateImage(prompt) {
-    try {
-        var response = await fetch(API_URL + '/generate-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: prompt })
-        });
-        var data = await response.json();
-        if (data.status === 'success') {
-            return 'data:image/jpeg;base64,' + data.image_base64;
-        }
-        return null;
-    } catch(e) {
-        return null;
-    }
-}
-
-        function downloadImage() {
-            if (!currentGeneratedImageUrl) return;
-            var a = document.createElement('a');
-            a.href = currentGeneratedImageUrl; a.download = 'niranjan-ai-image.jpg'; a.target = '_blank'; a.click();
-        }
 
         async function getWeather(city) {
             try {
@@ -389,46 +342,31 @@
             } catch (error) { addMessageWithAnimation('Error uploading image!'); }
         }
 
-      var currentCameraFacing = 'environment'; // back camera by default
+        var currentCameraFacing = 'environment';
 
-async function openCamera() {
-    document.getElementById('cameraModal').style.display = 'flex';
-    await startCamera();
-}
-
-async function startCamera() {
-    try {
-        // Stop existing stream
-        var video = document.getElementById('cameraVideo');
-        if (video.srcObject) {
-            video.srcObject.getTracks().forEach(function(track) { track.stop(); });
+        async function openCamera() {
+            document.getElementById('cameraModal').style.display = 'flex';
+            await startCamera();
         }
-        var constraints = {
-            video: {
-                facingMode: currentCameraFacing,
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+
+        async function startCamera() {
+            try {
+                var video = document.getElementById('cameraVideo');
+                if (video.srcObject) { video.srcObject.getTracks().forEach(function(track) { track.stop(); }); }
+                var stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentCameraFacing, width: { ideal: 1280 }, height: { ideal: 720 } } });
+                video.srcObject = stream;
+            } catch (error) {
+                try {
+                    var stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    document.getElementById('cameraVideo').srcObject = stream;
+                } catch(e) { alert('Cannot access camera!'); closeCamera(); }
             }
-        };
-        var stream = await navigator.mediaDevices.getUserMedia(constraints);
-        video.srcObject = stream;
-    } catch (error) {
-        // Fallback to any camera
-        try {
-            var stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            document.getElementById('cameraVideo').srcObject = stream;
-        } catch(e) {
-            alert('Cannot access camera!');
-            closeCamera();
         }
-    }
-}
 
-async function switchCamera() {
-    currentCameraFacing = currentCameraFacing === 'environment' ? 'user' : 'environment';
-    await startCamera();
-}
-
+        async function switchCamera() {
+            currentCameraFacing = currentCameraFacing === 'environment' ? 'user' : 'environment';
+            await startCamera();
+        }
 
         function closeCamera() {
             var video = document.getElementById('cameraVideo');
@@ -472,36 +410,6 @@ async function switchCamera() {
             totalMessages++; totalWords += text.split(' ').length; if (text.includes('?')) totalQuestions++;
         }
 
-        function addImageMessage(imageUrl, prompt) {
-            var welcome = document.getElementById('welcome'); if (welcome) welcome.style.display = 'none';
-            var container = document.getElementById('chatContainer'); var typing = document.getElementById('typing');
-            var div = document.createElement('div'); div.className = 'message ai-message';
-            var header = document.createElement('div'); header.className = 'message-header';
-            var sender = document.createElement('div'); sender.className = 'sender'; sender.textContent = 'Niranjan AI';
-            header.appendChild(sender); div.appendChild(header);
-            var textNode = document.createElement('div'); textNode.className = 'message-text';
-            textNode.textContent = 'Generated image for: "' + prompt + '"';
-            div.appendChild(textNode);
-            var img = document.createElement('img');
-            textNode.textContent = 'Generating image... please wait 10-15 seconds...';
-img.src = imageUrl;
-img.onload = function() { textNode.textContent = 'Generated image for: "' + prompt + '"'; setTimeout(scrollToBottom, 50); };
-            img.style.cssText = 'width:100%;max-width:300px;border-radius:12px;margin-top:10px;cursor:pointer;display:block;';
-            img.onclick = function() { currentGeneratedImageUrl = imageUrl; document.getElementById('generatedImage').src = imageUrl; document.getElementById('imageModal').style.display = 'flex'; };
-            img.onerror = function() {
-    setTimeout(function() {
-        var newUrl = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=512&height=512&nologo=true&seed=" + Math.floor(Math.random()*999999);
-        img.src = newUrl;
-        img.onerror = function() { textNode.textContent = 'Image generation failed. Try a different prompt!'; };
-    }, 3000);
-};
-            img.onload = function() { setTimeout(scrollToBottom, 50); };
-            div.appendChild(img);
-            container.insertBefore(div, typing);
-            setTimeout(scrollToBottom, 50);
-            totalMessages++;
-        }
-
         function addMessageWithAnimation(text) {
             var welcome = document.getElementById('welcome'); if (welcome) welcome.style.display = 'none';
             var container = document.getElementById('chatContainer'); var typing = document.getElementById('typing');
@@ -525,9 +433,7 @@ img.onload = function() { textNode.textContent = 'Generated image for: "' + prom
                     textNode.textContent += text.charAt(i); i++;
                     if (i % 10 === 0) scrollToBottom();
                     setTimeout(typeWriter, 8);
-                } else {
-                    scrollToBottom();
-                }
+                } else { scrollToBottom(); }
             }
             typeWriter();
             totalMessages++; totalWords += text.split(' ').length;
@@ -547,16 +453,6 @@ img.onload = function() { textNode.textContent = 'Generated image for: "' + prom
             setTimeout(scrollToBottom, 50);
 
             try {
-                if (isImageRequest(text)) {
-                    var prompt = extractImagePrompt(text);
-                    var imageUrl = await generateImage(prompt);
-                    document.getElementById('typing').style.display = 'none';
-                    addImageMessage(imageUrl, prompt);
-                    chatHistory.push({ role: 'assistant', content: 'Generated image for: ' + prompt });
-                    document.getElementById('sendBtn').disabled = false;
-                    return;
-                }
-
                 var weatherContext = "";
                 if (isWeatherQuery(text)) {
                     var city = extractCity(text) || "Indore";
