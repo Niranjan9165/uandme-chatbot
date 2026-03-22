@@ -22,7 +22,8 @@ app.add_middleware(
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
-client = Groq(api_key=GROQ_API_KEY)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+groq_client = Groq(api_key=GROQ_API_KEY)
 
 personality_prompts = {
     "helpful": "helpful, accurate and friendly",
@@ -140,6 +141,56 @@ def needs_web_search(message):
     message_lower = message.lower()
     return any(keyword in message_lower for keyword in keywords)
 
+def chat_with_gemini(messages, system_prompt):
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+        
+        # Build conversation history for Gemini
+        contents = []
+        for msg in messages:
+            role = "user" if msg["role"] == "user" else "model"
+            if isinstance(msg["content"], str):
+                contents.append({
+                    "role": role,
+                    "parts": [{"text": msg["content"]}]
+                })
+        
+        payload = {
+            "system_instruction": {
+                "parts": [{"text": system_prompt}]
+            },
+            "contents": contents,
+            "generationConfig": {
+                "temperature": 0.7,
+                "maxOutputTokens": 2048
+            }
+        }
+        
+        response = requests.post(url, json=payload, timeout=30)
+        data = response.json()
+        
+        if "candidates" in data:
+            return data["candidates"][0]["content"]["parts"][0]["text"]
+        
+        print(f"Gemini error: {data}")
+        return None
+    except Exception as e:
+        print(f"Gemini chat error: {e}")
+        return None
+
+def chat_with_groq(messages):
+    try:
+        response = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            max_tokens=2048,
+            temperature=0.7
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"Groq error: {e}")
+        return None
+
 @app.get("/")
 def home():
     return {"message": "U&Me AI is running!"}
@@ -200,38 +251,31 @@ def chat(input: ChatInput):
             print(f"Searching all sources for: {input.message}")
             web_context = search_all(input.message)
 
-        messages = [
-            {
-                "role": "system",
-                "content": f"""You are Niranjan AI, created by Niranjan Choudhary. Your personality is {personality_prompts.get(input.personality, 'helpful and friendly')}.
-                You can help with anything - answer questions, write code, translate languages,
-                detect fake news, solve math, write essays, give advice, and much more.
-                Always respond in {input.language} language.
-                Today's date is March 2026.
-                IMPORTANT: NEVER say 'as of my knowledge cutoff'.
-                NEVER say 'I dont have current information'.
-                When search results are provided ALWAYS use them for accurate answers.
-                Always give complete and detailed answers."""
-            }
-        ]
+        system_prompt = f"""You are Niranjan AI, created by Niranjan Choudhary. Your personality is {personality_prompts.get(input.personality, 'helpful and friendly')}.
+You can help with anything - answer questions, write code, translate languages,
+detect fake news, solve math, write essays, give advice, and much more.
+Always respond in {input.language} language.
+Today's date is March 2026.
+IMPORTANT: NEVER say 'as of my knowledge cutoff'.
+NEVER say 'I dont have current information'.
+When search results are provided ALWAYS use them for accurate answers.
+Always give complete and detailed answers."""
 
         if web_context:
-            messages.append({
-                "role": "system",
-                "content": f"Real time search results:\n{web_context}\nUse this to give accurate answer."
-            })
+            system_prompt += f"\n\nReal time search results:\n{web_context}\nUse this to give accurate answer."
 
         if input.document_text:
-            messages.append({
-                "role": "system",
-                "content": f"User uploaded document:\n\n{input.document_text}\n\nAnswer questions based on this."
-            })
+            system_prompt += f"\n\nUser uploaded document:\n{input.document_text}\nAnswer questions based on this."
 
+        # Build messages for Groq (fallback)
+        groq_messages = [{"role": "system", "content": system_prompt}]
         for msg in input.history:
-            messages.append(msg)
+            groq_messages.append(msg)
 
+        # Try Gemini with image support
         if input.image_base64:
-            messages.append({
+            # Use Groq for images (vision model)
+            groq_messages.append({
                 "role": "user",
                 "content": [
                     {
@@ -246,22 +290,31 @@ def chat(input: ChatInput):
                     }
                 ]
             })
+            try:
+                response = groq_client.chat.completions.create(
+                    model="meta-llama/llama-4-scout-17b-16e-instruct",
+                    messages=groq_messages,
+                    max_tokens=2048,
+                    temperature=0.7
+                )
+                reply = response.choices[0].message.content
+            except Exception as e:
+                reply = "Sorry I could not analyze the image. Please try again!"
         else:
-            messages.append({
-                "role": "user",
-                "content": input.message
-            })
-
-        model = "meta-llama/llama-4-scout-17b-16e-instruct" if input.image_base64 else "llama-3.3-70b-versatile"
-
-        response = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            max_tokens=2048,
-            temperature=0.7
-        )
-
-        reply = response.choices[0].message.content
+            # Try Gemini first
+            history_for_gemini = list(input.history)
+            history_for_gemini.append({"role": "user", "content": input.message})
+            
+            reply = chat_with_gemini(history_for_gemini, system_prompt)
+            
+            # Fallback to Groq if Gemini fails
+            if not reply:
+                print("Gemini failed, falling back to Groq...")
+                groq_messages.append({"role": "user", "content": input.message})
+                reply = chat_with_groq(groq_messages)
+            
+            if not reply:
+                reply = "Sorry I encountered an error. Please try again!"
 
         return {
             "reply": reply,
